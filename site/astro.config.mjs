@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // @ts-check
 
 import starlight from '@astrojs/starlight';

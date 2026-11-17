@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Component contract
 
 Pages may use these components **without importing them**, in any source

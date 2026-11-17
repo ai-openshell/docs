@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
 // Copy the assembled docs into the Starlight project.
 //   build/assembled/content -> site/src/content/docs (MDX pages get one import line for the components)
 //   build/assembled/{nav,pages}.json -> site/src/generated/ (read by src/versioning.ts)
@@ -94,7 +95,8 @@ for (const f of ['nav.json', 'pages.json'])
 
 const pub = path.join(site, 'public');
 fs.rmSync(pub, { recursive: true, force: true });
-fs.cpSync(path.join(site, 'static'), pub, { recursive: true });
+// REUSE sidecars (<file>.license) carry license headers; don't publish them.
+fs.cpSync(path.join(site, 'static'), pub, { recursive: true, filter: (src) => !src.endsWith('.license') });
 fs.cpSync(path.join(assembled, 'public'), pub, { recursive: true });
 
 fs.copyFileSync(path.join(themeDir, 'tokens.css'), path.join(site, 'src/styles/tokens.css'));

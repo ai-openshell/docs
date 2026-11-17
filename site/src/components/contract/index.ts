@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // Contract components (theme/CONTRACT.md). scripts/sync.mjs imports every name below into each MDX page.
 
 export { default as Accordion } from './Accordion.astro';

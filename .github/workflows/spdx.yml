@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Every tracked file needs SPDX-License-Identifier: Apache-2.0 in its first 10
+# lines, or in a <file>.license sidecar for files that can't hold a comment.
+name: SPDX
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  spdx:
+    name: spdx
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ai-openshell/workflows/spdx-check@0b051efd25c3f7319634fed863d2e03e1bd55d7b # main
+        with:
+          include: "*"
+          # LICENSE is the license text; the CNCF logos are third-party artwork.
+          exclude: "LICENSE site/static/cncf/*"

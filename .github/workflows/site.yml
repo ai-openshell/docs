@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # Build the whole site from sources.yml and publish it to GitHub Pages.
 #
 # Runs on pull requests (build only), on changes to main, hourly (to pick up

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { defineRouteMiddleware } from '@astrojs/starlight/route-data';
 import { docsetsFor, pageFor, pickerFor, sidebarFor, topicsFor } from './versioning';
 

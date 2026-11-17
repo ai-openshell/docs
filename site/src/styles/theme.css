@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 /* OpenShell theme for Starlight. Maps theme/tokens.css (--os-*) onto Starlight (--sl-*)
    and restyles chrome + contract components. Unlayered, so it wins over @layer starlight.*. */
 

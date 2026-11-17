@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
 // Write static redirect pages for hosts without redirect rules (GitHub Pages).
 // Reads <dist>/versions.json (written by the assembler):
 //   /                      -> newest OpenShell release

@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Contributing to the OpenShell docs site
 
 This repository holds the site build, theme, and navigation. Page content lives
@@ -36,5 +38,8 @@ build; in fetched versions they only warn.
 - Sign off every commit (`git commit --signoff`) for the [Developer Certificate
   of Origin](https://developercertificate.org/).
 - Every change goes through a pull request. Pull requests are squash-merged.
-- New files need only the license line `SPDX-License-Identifier: Apache-2.0`
-  in a comment. Keep the existing headers as they are.
+- Every file needs the license line `SPDX-License-Identifier: Apache-2.0` in
+  a comment in its first 10 lines; the `SPDX` workflow checks it. In `.mdx`
+  and `.astro` files, put it in the front matter. A file that can't hold a
+  comment, such as JSON or an image, gets a `<file>.license` file containing
+  the line instead.

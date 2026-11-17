@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // Fetch one directory of a repo at a ref, without cloning the repo.
 //
 // The ref (tag, branch or commit) is resolved to a commit with `git ls-remote`.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // Read a docs checkout in whatever format that ref uses, and return one shape:
 //
 //   { format, meta: { title?, description?, redirects },
@@ -54,7 +56,8 @@ export function read(dir, problems) {
   const format = detect(dir);
   const out = { native, fern, mdbook }[format](dir, problems);
   const pageFiles = new Set(out.pages.map((p) => p.relPath));
-  const skip = (rel) => pageFiles.has(rel) || /(^|\/)(_|\.)/.test(rel) || /\.(mdx?|ya?ml|toml|tsx?|jsx?)$/.test(rel);
+  const skip = (rel) =>
+    pageFiles.has(rel) || /(^|\/)(_|\.)/.test(rel) || /\.(mdx?|ya?ml|toml|tsx?|jsx?|license)$/.test(rel);
   out.assets = walk(dir)
     .map((f) => posix(path.relative(dir, f)))
     .filter((r) => !skip(r));
@@ -190,8 +193,11 @@ function mdbook(dir, problems) {
       return null;
     }
     const page = loadPage(dir, file, pageKey(file), title);
-    // the title is rendered by the site; drop the page's own H1
-    page.body = page.body.replace(/^\s*# .*\n+/, '');
+    // the title is rendered by the site; drop the page's own H1 (after any
+    // leading comments, such as an SPDX header, which are kept)
+    page.body = page.body.replace(/^((?:\s*<!--[\s\S]*?-->)*)\s*# .*\n+/, (_, comments) =>
+      comments ? `${comments.trim()}\n\n` : '',
+    );
     page.data.title ??= title;
     pages.push(page);
     return { type: 'page', key: page.key, label: title };

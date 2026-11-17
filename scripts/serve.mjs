@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
 import fs from 'node:fs';
 // Serve a built site under its base path, like GitHub Pages does.
 // Usage: node scripts/serve.mjs site/dist 4410 /openshell-docs/

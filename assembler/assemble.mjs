@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
 // Assemble the OpenShell docs from several repos.
 //
 // Full build (reads sources.yml):

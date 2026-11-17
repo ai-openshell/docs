@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Agent Instructions
 
 This repository builds the OpenShell docs site from the docs of several
@@ -21,8 +23,9 @@ repositories, listed in `sources.yml`. It holds no page content. See
 
 - `build/`, `.cache/`, and the generated paths under `site/` (see `.gitignore`)
   are build outputs. Never edit or commit them.
-- New files need only the license line `SPDX-License-Identifier: Apache-2.0`
-  in a comment.
+- Every file needs `SPDX-License-Identifier: Apache-2.0` in a comment in its
+  first 10 lines (front matter in `.mdx` and `.astro`), or a `<file>.license`
+  sidecar for JSON and images. CI checks it.
 
 ## Commits
 

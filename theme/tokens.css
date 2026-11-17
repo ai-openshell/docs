@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 /* OpenShell docs theme tokens (prototype). Shared by all three generator prototypes.
    Each prototype maps these onto its own variables (Starlight --sl-*, Docusaurus
    Infima --ifm-*, Fumadocs --color-fd-*). Fonts: Geist + Geist Mono (Google Fonts). */

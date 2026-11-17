@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # OpenShell docs
 
 Builds the [OpenShell](https://github.com/NVIDIA/OpenShell) docs site from the

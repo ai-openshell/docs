@@ -62,7 +62,7 @@ describe('native (docset.yml)', () => {
   });
 
   test('copies non-page files as assets', () => {
-    assert.deepEqual(docs.assets, ['guides/diagram.png']);
+    assert.deepEqual(docs.assets, ['guides/diagram.svg']);
   });
 });
 
@@ -123,9 +123,18 @@ describe('mdbook (SUMMARY.md)', () => {
     assert.deepEqual(docs.problems, []);
   });
 
+  test('does not publish license sidecars as assets', () => {
+    assert.deepEqual(docs.assets, []);
+  });
+
   test('drops the page H1, since the site renders the title', () => {
+    const install = docs.pages.find((p) => p.key === 'install');
+    assert.equal(install.body, 'Run it.\n');
+    assert.equal(install.data.title, 'Install');
+  });
+
+  test('keeps comments above the H1, such as an SPDX header', () => {
     const intro = docs.pages.find((p) => p.key === 'introduction');
-    assert.equal(intro.body, 'Hello.\n');
-    assert.equal(intro.data.title, 'Introduction');
+    assert.equal(intro.body, '<!-- SPDX-License-Identifier: Apache-2.0 -->\n\nHello.\n');
   });
 });

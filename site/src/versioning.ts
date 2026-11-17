@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // Navigation data for a page. Every docset page belongs to one (docset,
 // version): its sidebar and version picker are that docset's. Links to other
 // docsets (topic tabs, sub-tabs) go to their latest release. Topic landing
