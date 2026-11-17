@@ -9,6 +9,9 @@ import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
 
 const os = Astro.locals.osVersion;
 const topics = os?.topics ?? [];
+const fragment = !!os?.fragment;
+// A fragment preview names its docset in the header: "OpenShell Docker Driver".
+const name = fragment ? os?.name : undefined;
 const ds = os?.docsets;
 const subtabs = ds
   ? [
@@ -22,12 +25,12 @@ const subtabs = ds
   : [];
 ---
 
-<div class="os-header">
+<div class:list={['os-header', { 'os-header--fragment': fragment }]}>
   <div class="os-header__row">
     <a href={import.meta.env.BASE_URL} class="os-wordmark" translate="no">
       <!-- The OpenShell shield (NVIDIA/OpenShell docs/brand/assets/openshell-mark.svg), cropped to the shield -->
       <svg viewBox="14 7 72 87" aria-hidden="true" class="os-wordmark__mark"><path d="M50 9 L84 23 V51 C84 72 69 86 50 92 C31 86 16 72 16 51 V23 Z" fill="#76B900"/><g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M37 41 L49 50 L37 59"/><path d="M55 59 H67"/></g></svg>
-      <span>OpenShell</span>
+      <span>OpenShell{name && <span class="os-wordmark__docset"> {name}</span>}</span>
     </a>
     <div class="os-header__search print:hidden"><Search /></div>
     <div class="os-header__end print:hidden">
@@ -35,11 +38,13 @@ const subtabs = ds
       <div class="sl-hidden md:sl-flex"><ThemeSelect /></div>
     </div>
   </div>
-  <nav class="os-tabs print:hidden" aria-label="Topics">
-    {topics.map((t) => (
-      <a href={t.href} class="os-tab" aria-current={t.isCurrent ? 'true' : undefined}>{t.label}</a>
-    ))}
-  </nav>
+  {!fragment && (
+    <nav class="os-tabs print:hidden" aria-label="Topics">
+      {topics.map((t) => (
+        <a href={t.href} class="os-tab" aria-current={t.isCurrent ? 'true' : undefined}>{t.label}</a>
+      ))}
+    </nav>
+  )}
   {ds && ds.items.length > 1 && (
     <div class="os-subtabs print:hidden">
       <nav class="os-subtabs__links" aria-label={ds.topic.label}>

@@ -2,7 +2,7 @@
 // Copy the assembled docs into the Starlight project.
 //   build/assembled/content -> site/src/content/docs (MDX pages get one import line for the components)
 //   build/assembled/{nav,pages}.json -> site/src/generated/ (read by src/versioning.ts)
-//   site/static + build/assembled/public -> site/public (assets, <slug>.md, llms.txt, versions.json)
+//   site/static + build/assembled/public -> site/public (assets, <slug>.md, llms.txt, versions.json, links.json)
 //   theme/tokens.css -> site/src/styles/tokens.css
 // Per page it also sets:
 //   slug      explicit, so version segments like "0.1.8" keep their dots
@@ -11,6 +11,7 @@
 //   template  splash on topic overview pages (no sidebar)
 // ```mermaid code blocks become SVG diagrams, rendered here with pele (the
 // Markdown copies keep the source).
+// ASSEMBLED and THEME_DIR let the preview build use this shell from elsewhere.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,8 +19,8 @@ import { render } from 'pele';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const site = path.resolve(here, '..');
-const assembled = path.join(site, '../build/assembled');
-const themeDir = path.join(site, '../theme');
+const assembled = path.resolve(process.env.ASSEMBLED ?? path.join(site, '../build/assembled'));
+const themeDir = path.resolve(process.env.THEME_DIR ?? path.join(site, '../theme'));
 const docsDir = path.join(site, 'src/content/docs');
 const barrel = path.join(site, 'src/components/contract/index.ts');
 const names = [...fs.readFileSync(barrel, 'utf8').matchAll(/as (\w+) \}/g)].map((m) => m[1]);
@@ -67,7 +68,15 @@ for (const file of fs.readdirSync(docsDir, { recursive: true })) {
   if (!page.source) fm += `\ntemplate: splash`;
   const d = page.source && nav.docsets[page.source];
   let banner;
-  if (page.dev && !page.latest) {
+  if (page.preview) {
+    const pv = nav.preview;
+    const ref = pv.url ? `<a href="${pv.url}">${pv.ref}</a>` : pv.ref;
+    banner = `Preview of ${pv.repo} (${ref}). Only ${d.title} is built here; links to other docs open the <a href="${nav.site}/">live site</a>.`;
+    if (pv.diff) {
+      const removed = pv.diff.removed.length ? ` Removed pages: ${pv.diff.removed.join(', ')}.` : '';
+      banner = `Changes in ${ref} against ${pv.diff.base}: <span class="os-diff-key os-diff-key--added">added</span> <span class="os-diff-key os-diff-key--removed">removed</span>. Changed pages: ${pv.diff.changed}, new: ${pv.diff.added} (marked in the sidebar).${removed}`;
+    }
+  } else if (page.dev && !page.latest) {
     banner = `These docs are for the development version. <a href="${latestHref(page)}">Go to the latest released version (${d.latest})</a>.`;
   } else if (page.source && !page.latest) {
     banner = `You are viewing ${d.title} ${page.version}. The latest version is ${d.latest}. <a href="${latestHref(page)}">Go to the latest version</a>.`;
