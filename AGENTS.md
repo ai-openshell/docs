@@ -12,6 +12,9 @@ repositories, listed in `sources.yml`. It holds no page content. See
 - `mise run serve` serves the built site.
 - `mise run lint` checks formatting and lint (Biome, warnings fail); run it
   before every commit. `mise run format` fixes formatting.
+- `mise run test` runs the assembler's tests (`node:test`, in `test/`). The
+  assembler test builds small local git repos from `test/fixtures/`, so it
+  needs no network.
 - `mise run typecheck` type-checks the site, including `.astro` files.
 
 ## Conventions

@@ -1,0 +1,19 @@
+landing-page:
+  page: Home
+  path: pages/home.mdx
+navigation:
+  - section: Get Started
+    contents:
+      - page: Quick Start
+        path: pages/quick-start.mdx
+      - page: Custom
+        path: pages/custom.mdx
+  - section: Reference
+    slug: ref
+    path: pages/ref-overview.mdx
+    contents:
+      - page: CLI Commands
+        path: pages/cli.mdx
+  - page: Hidden
+    path: pages/hidden.mdx
+    hidden: true

@@ -10,7 +10,8 @@
     "dev": "npm run sync && astro dev --root site",
     "lint": "biome ci --error-on-warnings .",
     "format": "biome check --write .",
-    "typecheck": "npm run sync && astro check --root site"
+    "typecheck": "npm run sync && astro check --root site",
+    "test": "node --test 'test/*.test.mjs'"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.10",

@@ -1,0 +1,6 @@
+title: Alpha
+redirects:
+  old: guide
+nav:
+  - page: index.mdx
+  - page: guide.mdx

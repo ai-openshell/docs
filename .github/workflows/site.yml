@@ -39,6 +39,8 @@ jobs:
       - run: npm ci
       - name: Check formatting and lint
         run: npm run lint
+      - name: Unit tests
+        run: npm test
       - name: Assemble (fetches each source at its ref)
         run: node assembler/assemble.mjs --base /${{ github.event.repository.name }}/
       - name: Type-check

@@ -3,6 +3,7 @@
 //
 // Full build (reads sources.yml):
 //   node assembler/assemble.mjs [--base /docs/] [--local core=../OpenShell]
+//     [--sources sources.yml] [--out build/assembled] [--cache .cache/sources]
 //
 //   1. Resolves every listed ref (release tags, plus each source's `dev`
 //      branch) to a commit and fetches only the docs directory at that commit
@@ -68,7 +69,7 @@ const warnings = [];
 fs.rmSync(out, { recursive: true, force: true });
 
 // ---------- 0. what to build ----------
-const manifest = YAML.parse(fs.readFileSync(path.join(root, 'sources.yml'), 'utf8'));
+const manifest = YAML.parse(fs.readFileSync(path.resolve(args.sources ?? path.join(root, 'sources.yml')), 'utf8'));
 const allIds = Object.keys(manifest.sources);
 
 // One entry per (source, version). dev (if any) first, then releases newest first.

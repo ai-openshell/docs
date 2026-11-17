@@ -20,6 +20,10 @@ depends = ["assemble"]
 env = { BASE_PATH = "/docs/" }
 run = "npm run site"
 
+[tasks.test]
+description = "Run the unit tests for the assembler"
+run = "npm test"
+
 [tasks.lint]
 description = "Check formatting and lint with Biome"
 run = "npm run lint"
