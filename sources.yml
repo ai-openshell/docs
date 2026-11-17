@@ -36,6 +36,7 @@ sources:
     path: docs
     dev: { ref: main }
     versions:
+      - { name: "0.1.9", ref: v0.1.9 }
       - { name: "0.1.8", ref: v0.1.8 }
       - { name: "0.1.7", ref: v0.1.7 }
 

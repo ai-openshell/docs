@@ -7,7 +7,7 @@ owns the build, the theme, and the navigation.
 
 | Docset | Repository | Path | Versions |
 |---|---|---|---|
-| OpenShell | [NVIDIA/OpenShell](https://github.com/NVIDIA/OpenShell) | `docs/` | dev (`main`), 0.1.8, 0.1.7 |
+| OpenShell | [NVIDIA/OpenShell](https://github.com/NVIDIA/OpenShell) | `docs/` | dev (`main`), 0.1.9, 0.1.8, 0.1.7 |
 | Go SDK | [ai-openshell/sdk-go](https://github.com/ai-openshell/sdk-go) | `docs/src/` | dev (`main`), 0.1.8, 0.1.7 |
 
 ## How it works
