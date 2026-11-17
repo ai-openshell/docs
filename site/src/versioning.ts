@@ -18,8 +18,6 @@ type Version = {
   items: (NavItem | NavLink)[];
   latest?: boolean;
   dev?: boolean;
-  remote?: boolean;
-  preview?: boolean;
 };
 type Docset = { title: string; description?: string; mount: string; latest: string; versions: Version[] };
 export type Page = {
@@ -31,33 +29,14 @@ export type Page = {
   topic?: string;
   latest?: boolean;
   dev?: boolean;
-  preview?: boolean;
   edit?: string;
-  diff?: 'added' | 'changed';
 };
 
 const docsets = nav.docsets as unknown as Record<string, Docset>;
 const topics = nav.topics as unknown as { id: string; label: string; sources: string[]; landing?: string }[];
 const bySlug = new Map((pages as unknown as Page[]).map((p) => [p.slug, p]));
-// Build settings the assembler adds to nav.json (absent in older builds).
-const meta = nav as { base?: string; layout?: 'full' | 'fragment'; site?: string };
-const base = meta.base ?? '/';
-/** "fragment" previews show only the header, this docset's sidebar and the content. */
-export const layout = meta.layout ?? 'full';
+const base = (nav as { base?: string }).base ?? '/';
 export const href = (slug: string) => base + (slug ? `${slug}/` : '');
-// In a preview build, releases from other repos (and the topic landing pages)
-// are known only from the published link index and live on the live site.
-const site = meta.site ?? '';
-const live = (slug: string) => `${site}/${slug ? `${slug}/` : ''}`;
-const hrefIn = (v: { remote?: boolean }, slug: string) => (v.remote ? live(slug) : href(slug));
-const landingHref = (slug: string) => (site ? live(slug) : href(slug));
-
-/** The docset's name for a header: "Docker driver" -> "Docker Driver". */
-export const docsetName = (page: Page) => {
-  const title = page.source ? docsets[page.source].title : '';
-  // core is titled "OpenShell" already
-  return title && !title.startsWith('OpenShell') ? title.replace(/\b[a-z]/g, (c) => c.toUpperCase()) : undefined;
-};
 
 export function pageFor(id: string): Page | undefined {
   return bySlug.get(id.replace(/^\/|\/$/g, ''));
@@ -86,11 +65,11 @@ export function topicsFor(page: Page) {
   const current = topicOf(page);
   return topics.map((t) => {
     let link: string;
-    if (t.landing) link = landingHref(t.landing);
+    if (t.landing) link = href(t.landing);
     else {
       const d = t.sources[0];
       const r = release(d, versionFor(page, d));
-      link = hrefIn(r, r.first);
+      link = href(r.first);
     }
     return { label: t.label, href: link, isCurrent: t.id === current.id };
   });
@@ -100,7 +79,7 @@ export function topicsFor(page: Page) {
 export function docsetsFor(page: Page) {
   const t = topicOf(page);
   return {
-    topic: { label: t.label, landing: t.landing ? landingHref(t.landing) : undefined, isLanding: !page.source },
+    topic: { label: t.label, landing: t.landing ? href(t.landing) : undefined, isLanding: !page.source },
     items: t.sources.map((d) => {
       const r = release(d, versionFor(page, d));
       return {
@@ -108,7 +87,7 @@ export function docsetsFor(page: Page) {
         title: docsets[d].title,
         description: docsets[d].description,
         version: r.name,
-        href: hrefIn(r, r.first),
+        href: href(r.first),
         current: d === page.source,
       };
     }),
@@ -120,14 +99,6 @@ export function docsetsFor(page: Page) {
  * docsets are reached through the sub-tabs, and topic overview pages have no
  * sidebar (splash template, set by sync.mjs).
  */
-// Diff previews mark changed pages in the sidebar.
-const diffBadge = (slug: string) => {
-  const d = bySlug.get(slug)?.diff;
-  return d
-    ? { text: d === 'added' ? 'new' : 'changed', variant: d === 'added' ? ('success' as const) : ('caution' as const) }
-    : undefined;
-};
-
 export function sidebarFor(page: Page) {
   if (!page.source) return [];
   // Top-level groups start open, nested ones collapsed; Starlight opens any
@@ -148,7 +119,7 @@ export function sidebarFor(page: Page) {
             label: it.label,
             href: href(it.slug),
             isCurrent: it.slug === page.slug,
-            badge: diffBadge(it.slug),
+            badge: undefined,
             attrs: {},
           };
   return release(page.source, page.version).items.map((it) => toEntry(it));
@@ -164,11 +135,9 @@ export function pickerFor(page: Page) {
     options: d.versions.map((v) => ({
       name: v.name,
       latest: v.name === d.latest,
-      dev: !!v.dev && !v.preview && v.name !== d.latest,
-      preview: !!v.preview,
+      dev: !!v.dev && v.name !== d.latest,
       current: v.name === page.version,
-      href: hrefIn(v, v.pages.includes(page.key) ? [v.prefix, page.key].filter(Boolean).join('/') : v.first),
-      remote: !!v.remote,
+      href: href(v.pages.includes(page.key) ? [v.prefix, page.key].filter(Boolean).join('/') : v.first),
       samePage: v.pages.includes(page.key),
     })),
   };
@@ -176,9 +145,7 @@ export function pickerFor(page: Page) {
 
 /** What routeData.ts stores in Astro.locals for the header and the version picker. */
 export type OsVersion = {
-  fragment?: boolean;
-  name?: string;
   topics: ReturnType<typeof topicsFor>;
   picker: ReturnType<typeof pickerFor>;
-  docsets: ReturnType<typeof docsetsFor> | undefined;
+  docsets: ReturnType<typeof docsetsFor>;
 };

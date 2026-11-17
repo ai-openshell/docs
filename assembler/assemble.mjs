@@ -11,34 +11,20 @@
 //      docset.yml, Fern index.yml or mdBook SUMMARY.md.
 //   3. Publishes each (source, version) under /<mount>/<version>/, rewrites
 //      and checks every link, and writes the site inputs, Markdown for
-//      agents, llms.txt, the host's alias table and the public link index.
+//      agents, llms.txt and the host's alias table.
 //
 // Links: root-relative links (/how-it-works/x) stay in their release.
 // repo://path links (core://about/installation) go to the target's latest
 // release, or to its dev version from a dev page. Problems in a fetched
 // version, dev branches included, only warn, and the link falls back to the
 // page or the release's first page: the site build must never be blocked by
-// another repo. Each repo catches its own problems in its preview build, and
-// problems in a --local checkout or in this repo's own pages fail the build.
-//
-// Preview build (one repo, no access to the others):
-//   node assembler/assemble.mjs --preview sdk-go --path <checkout> \
-//     --index <site>/links.json --site <site url> [--ref pr-12 --ref-url <PR or commit URL>] [--layout full] \
-//     [--branch <pr head branch> --edit-repo <owner/repo of that branch>]
-//     [--diff-base <checkout of the PR's base commit> --diff-label <name>]
-//
-// With --diff-base the preview marks what changed on each page (experimental,
-// see diff.mjs) and writes diff.json with the changed pages.
-//
-// Everything outside the previewed repo comes from the published links.json.
-// Links into other repos are checked against it and point at the live site.
-// Pages that other repos link to must survive the change, or be listed under
-// `redirects:` in docset.yml.
+// another repo. Problems in a --local checkout (a repo checking its own
+// change) or in this repo's own pages fail the build.
 //
 // Output (build/assembled/):
 //   content/**        pages for the site generator
 //   public/**         assets, Markdown pages (<slug>.md), llms.txt,
-//                     versions.json, links.json
+//                     versions.json
 //   nav.json          topics, docsets, versions and each version's sidebar
 //   pages.json        every page with its docset and version
 //   sources.lock.json the commit each version was built from
@@ -56,7 +42,6 @@ import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import YAML from 'yaml';
 import { join, pageKey, parseFrontmatter, read } from './adapters.mjs';
-import { diffRelease } from './diff.mjs';
 import { checkout } from './fetch.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -74,52 +59,23 @@ for (let i = 0; i < argv.length; i++) {
   } else args[k] = v;
   i++;
 }
-const PREVIEW = args.preview;
-// Preview layout: "fragment" (default: header naming the docset, its sidebar
-// and content) or "full" (the site's tabs, sub-tabs and version picker,
-// linking to the live site).
-const LAYOUT = args.layout ?? (PREVIEW ? 'fragment' : 'full');
-if (!['full', 'fragment'].includes(LAYOUT)) throw new Error(`--layout must be full or fragment`);
-const out = path.resolve(args.out ?? path.join(root, 'build', PREVIEW ? 'preview' : 'assembled'));
+const out = path.resolve(args.out ?? path.join(root, 'build', 'assembled'));
 const cache = path.resolve(args.cache ?? path.join(root, '.cache/sources'));
 const BASE = `/${args.base ?? process.env.BASE_PATH ?? '/'}/`.replace(/\/+/g, '/');
 const url = (slug, hash = '') => `${BASE}${slug ? `${slug}/` : ''}${hash}`;
-// a page on the live site (preview builds link there for other repos)
-const liveUrl = (slug, hash = '') => `${SITE}/${slug ? `${slug}/` : ''}${hash}`;
 const errors = [];
 const warnings = [];
 fs.rmSync(out, { recursive: true, force: true });
 
 // ---------- 0. what to build ----------
-let index = null;
-if (PREVIEW) {
-  for (const k of ['path', 'index', 'site']) if (!args[k]) throw new Error(`--preview needs --${k}`);
-  index = /^https?:/.test(args.index)
-    ? await (await fetch(args.index)).json()
-    : JSON.parse(fs.readFileSync(args.index, 'utf8'));
-  if (!index.docsets[PREVIEW]) throw new Error(`${PREVIEW} is not in the published index`);
-}
-const SITE = (args.site ?? '').replace(/\/$/, '');
-const manifest = PREVIEW
-  ? {
-      site: { title: index.title },
-      topics: index.topics,
-      sources: {
-        [PREVIEW]: {
-          ...index.docsets[PREVIEW],
-          versions: [],
-          dev: { ref: args.ref ?? 'working tree', local: path.resolve(args.path) },
-        },
-      },
-    }
-  : YAML.parse(fs.readFileSync(path.join(root, 'sources.yml'), 'utf8'));
-const allIds = PREVIEW ? Object.keys(index.docsets) : Object.keys(manifest.sources);
+const manifest = YAML.parse(fs.readFileSync(path.join(root, 'sources.yml'), 'utf8'));
+const allIds = Object.keys(manifest.sources);
 
 // One entry per (source, version). dev (if any) first, then releases newest first.
 const wanted = [];
 for (const [id, src] of Object.entries(manifest.sources)) {
   if (src.dev) {
-    const local = src.dev.local ?? locals[id];
+    const local = locals[id];
     wanted.push({
       id,
       src,
@@ -191,7 +147,7 @@ function anchorsOf(body, ext) {
 const releases = [];
 const releasesOf = Object.fromEntries(allIds.map((id) => [id, []]));
 const pages = [];
-const strict = (rel) => !!(PREVIEW || rel.local || rel.strict);
+const strict = (rel) => !!(rel.local || rel.strict);
 const report = (rel, msg) => (strict(rel) ? errors : warnings).push(`${rel.name}: ${msg}`);
 for (const w of wanted) {
   const name = `${w.id}@${w.name}`;
@@ -222,7 +178,6 @@ for (const w of wanted) {
     nav: docs.nav,
     pages: [],
     assets: new Set(docs.assets),
-    preview: !!PREVIEW,
   };
   for (const p of problems) report(rel, p);
   const seen = new Set();
@@ -248,74 +203,17 @@ for (const w of wanted) {
   releasesOf[w.id].push(rel);
 }
 // latest = the newest release; a docset with only a dev version uses dev.
-// (A preview is never latest: the published index says which release is.)
-if (!PREVIEW)
-  for (const id of Object.keys(manifest.sources)) {
-    const first = releasesOf[id].find((r) => !r.dev) ?? releasesOf[id][0];
-    if (first) first.latest = true;
-  }
+for (const id of allIds) {
+  const first = releasesOf[id].find((r) => !r.dev) ?? releasesOf[id][0];
+  if (first) first.latest = true;
+}
 const bySlug = new Map(pages.map((p) => [p.slug, p]));
 
-// Experimental diff view (preview only): mark changes against the PR's base.
-let diff = null;
-if (PREVIEW && args['diff-base']) {
-  const w = wanted[0];
-  const problems = [];
-  diff = {
-    base: args['diff-label'] ?? 'base',
-    ...diffRelease(
-      releases[0],
-      read(path.join(path.resolve(args['diff-base']), w.subdir), problems),
-      fernIds,
-      problems,
-    ),
-  };
-  for (const p of problems) warnings.push(`diff: ${p}`);
-  console.log(
-    `diff against ${diff.base}: ${diff.changed.length} changed, ${diff.added.length} new, ${diff.removed.length} removed`,
-  );
-}
-
-// Releases known only from the published index (preview mode): page keys,
-// titles and anchors, never content. The previewed docset's own published
-// dev is replaced by the preview.
-const remoteSlugs = new Map();
-if (PREVIEW) {
-  for (const [id, d] of Object.entries(index.docsets)) {
-    for (const v of d.versions) {
-      if (id === PREVIEW && v.dev) continue;
-      const rel = {
-        id,
-        version: v.name,
-        dev: !!v.dev,
-        ref: v.ref,
-        sha: v.sha,
-        repo: d.repo,
-        mount: d.mount,
-        latest: v.name === d.latest,
-        prefix: v.prefix,
-        name: `${id}@${v.name}`,
-        remote: true,
-        redirects: v.redirects ?? {},
-        pageInfo: v.pages,
-        first: v.first,
-        title: d.title,
-        description: d.description,
-      };
-      releasesOf[id].push(rel);
-      for (const [key, info] of Object.entries(v.pages)) remoteSlugs.set(join(v.prefix, key), info);
-    }
-    releasesOf[id].sort((a, b) => Number(b.dev) - Number(a.dev)); // dev first, then releases as published
-  }
-}
-const target = (slug) => bySlug.get(slug) ?? remoteSlugs.get(slug);
 const latestOf = (id) => releasesOf[id].find((r) => r.latest) ?? releasesOf[id][0];
 const devOf = (id) => releasesOf[id].find((r) => r.dev);
 
 // ---------- 3. links ----------
-const crossLinks = [];
 function firstOf(rel) {
-  if (rel.remote) return rel.first;
   const walkNav = (items) => {
     for (const it of items) {
       if (it.type === 'page') return join(rel.prefix, it.key);
@@ -326,8 +224,7 @@ function firstOf(rel) {
   return walkNav(rel.nav) ?? rel.prefix;
 }
 function checked(slug, anchor, original, page, rel) {
-  const t = target(slug);
-  const link = rel.remote ? liveUrl : url;
+  const t = bySlug.get(slug);
   const soft = !strict(page.rel);
   if (!t) {
     const msg = `${page.relPath}: broken link "${original}" -> /${slug}`;
@@ -336,15 +233,15 @@ function checked(slug, anchor, original, page, rel) {
       return original;
     }
     warnings.push(`${page.rel.name}: ${msg}; using the first page of ${rel.name}`);
-    return link(firstOf(rel));
+    return url(firstOf(rel));
   }
   if (anchor && !t.anchors.includes(anchor)) {
     const msg = `${page.relPath}: missing heading "${original}" -> /${slug}#${anchor}`;
     if (!soft) errors.push(`${page.rel.name}: ${msg}`);
     else warnings.push(`${page.rel.name}: ${msg}; linking the page`);
-    return link(slug);
+    return url(slug);
   }
-  return link(slug, anchor ? `#${anchor}` : '');
+  return url(slug, anchor ? `#${anchor}` : '');
 }
 function resolveLink(raw, page) {
   if (/^(https?:|mailto:|tel:|data:|#|\/\/)/i.test(raw)) return raw;
@@ -359,10 +256,6 @@ function resolveLink(raw, page) {
     }
     const t = id === rel.id ? rel : (rel.dev && devOf(id)) || latestOf(id);
     const key = t.redirects?.[pageKey(rest)] ?? pageKey(rest);
-    crossLinks.push({
-      from: { docset: rel.id, version: rel.version, page: page.key },
-      to: { docset: id, version: t.version, key, ...(anchor ? { anchor } : {}) },
-    });
     return checked(join(t.prefix, key), anchor, raw, page, t);
   }
   if (p.startsWith('/')) {
@@ -415,15 +308,13 @@ for (const page of pages) {
 }
 
 // "Edit this page": the same page on the source's dev branch (a tag can't be
-// edited, and fixes land on the branch). A preview edits the PR's branch.
-// No link when the dev branch no longer has the page.
+// edited, and fixes land on the branch). No link when the dev branch no longer
+// has the page.
 function editUrl(page) {
-  const dev = releasesOf[page.rel.id].find((r) => r.dev && !r.remote);
-  const repo = PREVIEW ? (args['edit-repo'] ?? dev?.repo) : dev?.repo;
-  const ref = PREVIEW ? args.branch : dev?.ref;
-  if (!dev || !ref || !/^[\w.-]+\/[\w.-]+$/.test(repo)) return undefined;
+  const dev = devOf(page.rel.id);
+  if (!dev || !/^[\w.-]+\/[\w.-]+$/.test(dev.repo)) return undefined;
   const same = dev.pages.find((x) => x.key === page.key);
-  return same && `https://github.com/${repo}/edit/${ref}/${join(dev.path, same.relPath)}`;
+  return same && `https://github.com/${dev.repo}/edit/${dev.ref}/${join(dev.path, same.relPath)}`;
 }
 
 // ---------- 5. nav.json + pages.json ----------
@@ -444,10 +335,8 @@ const versionEntry = (rel) => ({
   dev: !!rel.dev,
   first: firstOf(rel),
   redirects: rel.redirects,
-  pages: rel.remote ? Object.keys(rel.pageInfo) : rel.pages.map((p) => p.key),
-  items: rel.remote ? [] : navItems(rel.nav, rel),
-  ...(rel.remote ? { remote: true } : {}),
-  ...(rel.preview ? { preview: true } : {}),
+  pages: rel.pages.map((p) => p.key),
+  items: navItems(rel.nav, rel),
 });
 const docsets = {};
 for (const id of allIds) {
@@ -459,7 +348,7 @@ for (const id of allIds) {
     description: latest.description,
     mount: latest.mount,
     repo: rels[0].repo,
-    path: manifest.sources[id]?.path ?? index?.docsets[id]?.path,
+    path: manifest.sources[id].path,
     latest: latest.version,
     versions: rels.map(versionEntry),
   };
@@ -489,55 +378,29 @@ function introFor(t) {
     return resolveLink(x, page);
   });
 }
-if (!PREVIEW) {
-  for (const t of manifest.topics) {
-    if (t.sources.length < 2) continue;
-    const intro = introFor(t);
-    const cards = t.sources.map((id) => {
-      const d = docsets[id];
-      const latest = d.versions.find((v) => v.name === d.latest);
-      return `<Card title="${d.title}" href="${url(latest.first)}">\n\n${d.description ?? ''}\n\nLatest: ${latest.name}\n\n</Card>`;
-    });
-    const body = [
-      ...(intro ? [intro, `## Available ${/^[A-Z][a-z]/.test(t.label) ? t.label.toLowerCase() : t.label}`] : []),
-      `<Cards>\n\n${cards.join('\n\n')}\n\n</Cards>`,
-    ].join('\n\n');
-    const outRel = `${t.id}/index.mdx`;
-    writeFile(
-      path.join('content', outRel),
-      `---\n${YAML.stringify({ title: t.label, description: t.description })}---\n${body}\n`,
-    );
-    landings.push({ topic: t.id, slug: t.id, outRel, title: t.label, description: t.description, body });
-  }
+for (const t of manifest.topics) {
+  if (t.sources.length < 2) continue;
+  const intro = introFor(t);
+  const cards = t.sources.map((id) => {
+    const d = docsets[id];
+    const latest = d.versions.find((v) => v.name === d.latest);
+    return `<Card title="${d.title}" href="${url(latest.first)}">\n\n${d.description ?? ''}\n\nLatest: ${latest.name}\n\n</Card>`;
+  });
+  const body = [
+    ...(intro ? [intro, `## Available ${/^[A-Z][a-z]/.test(t.label) ? t.label.toLowerCase() : t.label}`] : []),
+    `<Cards>\n\n${cards.join('\n\n')}\n\n</Cards>`,
+  ].join('\n\n');
+  const outRel = `${t.id}/index.mdx`;
+  writeFile(
+    path.join('content', outRel),
+    `---\n${YAML.stringify({ title: t.label, description: t.description })}---\n${body}\n`,
+  );
+  landings.push({ topic: t.id, slug: t.id, outRel, title: t.label, description: t.description, body });
 }
-const landingOf = (t) =>
-  PREVIEW ? index.topics.find((x) => x.id === t.id)?.landing : landings.find((l) => l.topic === t.id)?.slug;
-const local = releases;
+const landingOf = (t) => landings.find((l) => l.topic === t.id)?.slug;
 const nav = {
   title: manifest.site.title,
   base: BASE,
-  ...(PREVIEW
-    ? {
-        site: SITE,
-        layout: LAYOUT,
-        preview: {
-          docset: PREVIEW,
-          repo: local[0]?.repo,
-          ref: local[0]?.ref,
-          ...(args['ref-url'] ? { url: args['ref-url'] } : {}),
-          ...(diff
-            ? {
-                diff: {
-                  base: diff.base,
-                  changed: diff.changed.length,
-                  added: diff.added.length,
-                  removed: diff.removed.map((r) => r.title),
-                },
-              }
-            : {}),
-        },
-      }
-    : {}),
   topics: manifest.topics.map((t) => ({ id: t.id, label: t.label, sources: t.sources, landing: landingOf(t) })),
   docsets,
 };
@@ -556,8 +419,6 @@ writeFile(
         dev: !!p.rel.dev,
         key: p.key,
         edit: editUrl(p),
-        ...(p.diff ? { diff: p.diff } : {}),
-        ...(PREVIEW ? { preview: true } : {}),
       }))
       .concat(
         landings.map((l) => ({
@@ -574,20 +435,11 @@ writeFile(
     2,
   ),
 );
-if (diff)
-  writeFile(
-    'diff.json',
-    JSON.stringify(
-      { ...diff, url: url(''), pages: [...diff.changed, ...diff.added].map((p) => ({ ...p, url: url(p.slug) })) },
-      null,
-      2,
-    ),
-  );
 writeFile(
   'sources.lock.json',
   JSON.stringify(
     Object.fromEntries(
-      local.map((r) => [r.name, { repo: r.repo, ref: r.ref, sha: r.sha, path: r.path, format: r.format }]),
+      releases.map((r) => [r.name, { repo: r.repo, ref: r.ref, sha: r.sha, path: r.path, format: r.format }]),
     ),
     null,
     2,
@@ -698,10 +550,9 @@ for (const page of pages) {
   const latest = latestOf(rel.id);
   const latestEntry = docsets[rel.id].versions.find((v) => v.name === latest.version);
   const latestSlug = latestEntry.pages.includes(page.key) ? join(latest.prefix, page.key) : latestEntry.first;
-  const latestMd = latest.remote ? `${SITE}/${latestSlug}.md` : mdUrl(latestSlug);
-  const status = PREVIEW
-    ? `> Preview build of ${rel.repo} (${rel.ref}); not published. Published version (${latest.version}): ${latestMd}`
-    : rel.dev && !rel.latest
+  const latestMd = mdUrl(latestSlug);
+  const status =
+    rel.dev && !rel.latest
       ? `> These docs are for the development version (${rel.repo}@${rel.ref}). Latest released version (${latest.version}): ${latestMd}`
       : rel.latest
         ? null
@@ -746,143 +597,65 @@ for (const l of landings) {
   writeFile(path.join('public', `${l.slug}.md`), header + toMarkdown(l.body, 'mdx', l.outRel));
 }
 
-// ---------- 7. llms.txt, versions.json, links.json ----------
+// ---------- 7. llms.txt, versions.json ----------
 const entry = (p) => `- [${p.data.title}](${mdUrl(p.slug)})${p.data.description ? `: ${p.data.description}` : ''}`;
-const llms = [`# ${manifest.site.title}`, ''];
-if (PREVIEW) {
-  const rel = local[0];
-  llms.push(
-    `> Preview of ${rel.title} from ${rel.repo} (${rel.ref}). Only this docset is built here; the rest is at ${SITE}/llms.txt.`,
-    '',
-    ...rel.pages.map(entry),
-    '',
-  );
-} else {
-  llms.push(
-    '> Each section lists the latest release of one docset; other versions follow it. Every page is also available as Markdown at its URL plus .md.',
-    '',
-  );
-  for (const t of manifest.topics) {
-    llms.push(`## ${t.label}`, '');
-    for (const id of t.sources) {
-      const latest = latestOf(id);
-      llms.push(`### ${latest.title} ${latest.version}`, '', ...latest.pages.map(entry), '');
-      const others = releasesOf[id].filter((r) => r !== latest);
-      if (others.length)
-        llms.push(`Other versions: ${others.map((r) => `[${r.version}](${BASE}${r.prefix}/llms.txt)`).join(', ')}`, '');
-    }
+const llms = [
+  `# ${manifest.site.title}`,
+  '',
+  '> Each section lists the latest release of one docset; other versions follow it. Every page is also available as Markdown at its URL plus .md.',
+  '',
+];
+for (const t of manifest.topics) {
+  llms.push(`## ${t.label}`, '');
+  for (const id of t.sources) {
+    const latest = latestOf(id);
+    llms.push(`### ${latest.title} ${latest.version}`, '', ...latest.pages.map(entry), '');
+    const others = releasesOf[id].filter((r) => r !== latest);
+    if (others.length)
+      llms.push(`Other versions: ${others.map((r) => `[${r.version}](${BASE}${r.prefix}/llms.txt)`).join(', ')}`, '');
   }
 }
 writeFile('public/llms.txt', llms.join('\n'));
-for (const rel of local)
+for (const rel of releases)
   writeFile(
     path.join('public', rel.prefix, 'llms.txt'),
     [`# ${rel.title} ${rel.version}`, '', ...rel.pages.map(entry), ''].join('\n'),
   );
 
 // Alias table for the host: /<mount>/latest/<page> -> /<mount>/<newest>/<page>.
-const hostIds = PREVIEW ? [PREVIEW] : Object.keys(docsets);
 writeFile(
   'public/versions.json',
   JSON.stringify(
     {
       base: BASE,
-      home: PREVIEW
-        ? url(docsets[PREVIEW].versions.find((v) => !v.remote).first)
-        : url(latestOf(manifest.topics[0].sources[0]).prefix),
+      home: url(latestOf(manifest.topics[0].sources[0]).prefix),
       docsets: Object.fromEntries(
-        hostIds.map((id) => {
-          const d = docsets[id];
-          const vs = d.versions.filter((v) => !v.remote);
-          return [
-            id,
-            {
-              mount: d.mount,
-              latest: PREVIEW ? vs[0].name : d.latest,
-              versions: vs.map((v) => ({
-                name: v.name,
-                prefix: v.prefix,
-                first: v.first,
-                pages: v.pages,
-                redirects: v.redirects,
-              })),
-            },
-          ];
-        }),
+        Object.entries(docsets).map(([id, d]) => [
+          id,
+          {
+            mount: d.mount,
+            latest: d.latest,
+            versions: d.versions.map((v) => ({
+              name: v.name,
+              prefix: v.prefix,
+              first: v.first,
+              pages: v.pages,
+              redirects: v.redirects,
+            })),
+          },
+        ]),
       ),
     },
     null,
     2,
   ),
 );
-// Public link index: all a preview build needs to know about the other repos.
-if (!PREVIEW) {
-  writeFile(
-    'public/links.json',
-    JSON.stringify(
-      {
-        title: manifest.site.title,
-        generated: new Date().toISOString(),
-        base: BASE,
-        topics: nav.topics.map(({ id, label, sources, landing }) => ({ id, label, sources, landing })),
-        docsets: Object.fromEntries(
-          Object.entries(docsets).map(([id, d]) => [
-            id,
-            {
-              title: d.title,
-              description: d.description,
-              mount: d.mount,
-              repo: d.repo,
-              path: d.path,
-              latest: d.latest,
-              versions: releasesOf[id].map((rel) => ({
-                name: rel.version,
-                ref: rel.ref,
-                sha: rel.sha,
-                dev: rel.dev,
-                prefix: rel.prefix,
-                first: firstOf(rel),
-                redirects: rel.redirects,
-                pages: Object.fromEntries(rel.pages.map((p) => [p.key, { title: p.data.title, anchors: p.anchors }])),
-              })),
-            },
-          ]),
-        ),
-        links: crossLinks,
-      },
-      null,
-      2,
-    ),
-  );
-}
-
-// Inbound guard (preview): pages and headings that other repos (or the
-// site's topic pages) link to in this docset must still exist, or redirect.
-if (PREVIEW) {
-  const rel = local[0];
-  const d = index.docsets[PREVIEW];
-  const devName = d.versions.find((v) => v.dev)?.name;
-  const byKey = new Map(rel.pages.map((p) => [p.key, p]));
-  for (const l of index.links) {
-    if (l.to.docset !== PREVIEW || l.from.docset === PREVIEW) continue;
-    if (l.to.version !== devName && l.to.version !== d.latest) continue;
-    const key = rel.redirects[l.to.key] ?? l.to.key;
-    const page = byKey.get(key);
-    const from = `${l.from.docset}@${l.from.version}/${l.from.page || 'index'}`;
-    if (!page)
-      errors.push(
-        `inbound: ${from} links to "${l.to.key}", which this change removes. Keep the page or add it to redirects: in docset.yml`,
-      );
-    else if (l.to.anchor && !page.anchors.includes(l.to.anchor))
-      errors.push(`inbound: ${from} links to "${l.to.key}#${l.to.anchor}", and that heading no longer exists`);
-  }
-}
 
 // ---------- report ----------
 console.log(
-  `assembled ${pages.length} pages from ${local.length} versions -> ${path.relative(process.cwd(), out)} (base ${BASE})`,
+  `assembled ${pages.length} pages from ${releases.length} versions -> ${path.relative(process.cwd(), out)} (base ${BASE})`,
 );
-for (const rel of local)
+for (const rel of releases)
   console.log(`  ${rel.name.padEnd(22)} ${rel.format.padEnd(7)} ${String(rel.sha).slice(0, 12)}  ${url(rel.prefix)}`);
 if (warnings.length)
   console.warn(

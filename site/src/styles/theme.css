@@ -111,9 +111,6 @@ body {
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
-.os-wordmark__docset {
-  font-weight: 500;
-}
 .os-wordmark__mark {
   width: auto;
   height: 1.625rem;
@@ -841,9 +838,6 @@ a.os-card:hover .os-card__arrow {
 :root {
   --os-subtabs-h: 2.75rem;
 }
-html:has(.os-header--fragment) {
-  --sl-nav-height: var(--os-header-h);
-}
 html:has(.os-subtabs) {
   --sl-nav-height: calc(var(--os-header-h) + var(--os-tabs-h) + var(--os-subtabs-h));
 }
@@ -949,41 +943,6 @@ html:has(.os-subtabs) {
 .os-subtab[aria-current="true"] {
   color: var(--os-accent-text);
   background: color-mix(in srgb, var(--os-accent) 14%, transparent);
-}
-
-/* ---------- diff previews (experimental, see assembler/diff.mjs) ---------- */
-.sl-markdown-content .os-diff {
-  border-inline-start: 3px solid;
-  padding-inline-start: 0.85rem;
-  margin-inline-start: -1rem;
-  border-radius: 2px;
-}
-.sl-markdown-content .os-diff--added {
-  border-color: #3fa33a;
-  background: color-mix(in srgb, #3fa33a 8%, transparent);
-}
-.sl-markdown-content .os-diff--removed {
-  border-color: #d0443e;
-  background: color-mix(in srgb, #d0443e 7%, transparent);
-  opacity: 0.7;
-}
-/* strike prose only: a line-through can't be undone inside, so code stays readable */
-.sl-markdown-content .os-diff--removed :is(p, li, td, th, h1, h2, h3, h4) {
-  text-decoration: line-through;
-  text-decoration-color: color-mix(in srgb, #d0443e 60%, transparent);
-}
-.os-diff-key {
-  padding: 0 0.35rem;
-  border-inline-start: 3px solid;
-}
-.os-diff-key--added {
-  border-color: #3fa33a;
-  background: color-mix(in srgb, #3fa33a 15%, transparent);
-}
-.os-diff-key--removed {
-  border-color: #d0443e;
-  background: color-mix(in srgb, #d0443e 15%, transparent);
-  text-decoration: line-through;
 }
 
 /* Mermaid diagrams, rendered at build time by pele (site/scripts/sync.mjs) */
