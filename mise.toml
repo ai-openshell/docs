@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# The site needs only Node.js (and git, to fetch the sources). Run
+# `mise install`, then `mise tasks` to list the tasks.
+
+[tools]
+node = "24.20.0"
+
+[tasks.install]
+description = "Install npm dependencies"
+run = "npm ci"
+
+[tasks.assemble]
+description = "Fetch every source in sources.yml and assemble the pages"
+run = "node assembler/assemble.mjs --base /docs/"
+
+[tasks.build]
+description = "Assemble and build the site into site/dist"
+depends = ["assemble"]
+env = { BASE_PATH = "/docs/" }
+run = "npm run site"
+
+[tasks.serve]
+description = "Serve the built site at http://127.0.0.1:4410/docs/"
+run = "node scripts/serve.mjs site/dist 4410 /docs/"
