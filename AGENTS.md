@@ -6,8 +6,9 @@ repositories, listed in `sources.yml`. It holds no page content. See
 
 ## Commands
 
-- `mise run build` fetches every source and builds the site; it fails on broken
-  links in `dev` versions.
+- `mise run build` fetches every source and builds the site. Broken links in
+  fetched versions only warn; fix them in the source repository. Broken links
+  in a `--local` checkout fail the build.
 - `mise run serve` serves the built site.
 
 ## Conventions

@@ -15,10 +15,11 @@
 //
 // Links: root-relative links (/how-it-works/x) stay in their release.
 // repo://path links (core://about/installation) go to the target's latest
-// release, or to its dev version from a dev page. Problems in versions that
-// can still change (dev, previews) fail the build. Problems in a published
-// release only warn, and the link falls back to the release's first page:
-// a release is frozen, so it must never block the build.
+// release, or to its dev version from a dev page. Problems in a fetched
+// version, dev branches included, only warn, and the link falls back to the
+// page or the release's first page: the site build must never be blocked by
+// another repo. Each repo catches its own problems in its preview build, and
+// problems in a --local checkout or in this repo's own pages fail the build.
 //
 // Preview build (one repo, no access to the others):
 //   node assembler/assemble.mjs --preview sdk-go --path <checkout> \
@@ -169,7 +170,7 @@ function anchorsOf(body, ext) {
 const releases = [];
 const releasesOf = Object.fromEntries(allIds.map((id) => [id, []]));
 const pages = [];
-const strict = (rel) => !!(PREVIEW || rel.dev || rel.strict);
+const strict = (rel) => !!(PREVIEW || rel.local || rel.strict);
 const report = (rel, msg) => (strict(rel) ? errors : warnings).push(`${rel.name}: ${msg}`);
 for (const w of wanted) {
   const name = `${w.id}@${w.name}`;
@@ -182,7 +183,7 @@ for (const w of wanted) {
     continue;
   }
   const rel = {
-    id: w.id, version: w.name, dev: w.dev, ref: w.ref, sha: w.sha, repo: w.repo, path: w.subdir,
+    id: w.id, version: w.name, dev: w.dev, local: !!w.local, ref: w.ref, sha: w.sha, repo: w.repo, path: w.subdir,
     mount: w.src.mount, prefix: join(w.src.mount, w.name), name, format: docs.format,
     title: docs.meta.title ?? w.src.title ?? w.id,
     description: docs.meta.description ?? w.src.description,
@@ -647,7 +648,9 @@ if (PREVIEW) {
 // ---------- report ----------
 console.log(`assembled ${pages.length} pages from ${local.length} versions -> ${path.relative(process.cwd(), out)} (base ${BASE})`);
 for (const rel of local) console.log(`  ${rel.name.padEnd(22)} ${rel.format.padEnd(7)} ${String(rel.sha).slice(0, 12)}  ${url(rel.prefix)}`);
-if (warnings.length) console.warn(`\n${warnings.length} warning(s) (published releases never block the build):\n- ` + warnings.join("\n- "));
+if (warnings.length) console.warn(`\n${warnings.length} warning(s) (fetched versions never block the build; fix them in their repo):\n- ` + warnings.join("\n- "));
+// In GitHub Actions, also show each warning as an annotation on the run.
+if (process.env.GITHUB_ACTIONS) for (const w of warnings) console.log(`::warning title=Docs::${w.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A")}`);
 if (errors.length) {
   console.error(`\n${errors.length} error(s):\n- ` + errors.join("\n- "));
   process.exit(1);

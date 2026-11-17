@@ -22,7 +22,8 @@ mise run install
 
 To build against a local checkout instead of a source's `dev` branch, run
 `node assembler/assemble.mjs --base /docs/ --local core=../OpenShell` before
-`BASE_PATH=/docs/ npm run site`.
+`BASE_PATH=/docs/ npm run site`. Broken links in a local checkout fail the
+build; in fetched versions they only warn.
 
 ## Commits and pull requests
 

@@ -19,6 +19,10 @@ branch, reads it in its own format (Fern `index.yml`, mdBook `SUMMARY.md`, or
 [Starlight](https://starlight.astro.build/). Each version is published at its
 own path, such as `/0.1.8/about/overview/` or `/sdks/go/dev/`.
 
+Broken links in the full build are warnings, so one repository can't block the
+site. Each repository catches its own broken links when it builds its docs with
+the preview workflow or with `--local`, where they are errors.
+
 To publish a new release, add its tag to `sources.yml`.
 
 ## Run it locally
