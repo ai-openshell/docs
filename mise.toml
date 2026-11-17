@@ -20,6 +20,19 @@ depends = ["assemble"]
 env = { BASE_PATH = "/docs/" }
 run = "npm run site"
 
+[tasks.lint]
+description = "Check formatting and lint with Biome"
+run = "npm run lint"
+
+[tasks.typecheck]
+description = "Type-check the site (needs the assembled sources)"
+depends = ["assemble"]
+run = "npm run typecheck"
+
+[tasks.format]
+description = "Format the code and apply safe lint fixes"
+run = "npm run format"
+
 [tasks.serve]
 description = "Serve the built site at http://127.0.0.1:4410/docs/"
 run = "node scripts/serve.mjs site/dist 4410 /docs/"

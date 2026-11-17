@@ -10,6 +10,9 @@ repositories, listed in `sources.yml`. It holds no page content. See
   fetched versions only warn; fix them in the source repository. Broken links
   in a `--local` checkout fail the build.
 - `mise run serve` serves the built site.
+- `mise run lint` checks formatting and lint (Biome, warnings fail); run it
+  before every commit. `mise run format` fixes formatting.
+- `mise run typecheck` type-checks the site, including `.astro` files.
 
 ## Conventions
 

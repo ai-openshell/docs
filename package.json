@@ -7,7 +7,10 @@
     "sync": "node site/scripts/sync.mjs",
     "build": "npm run assemble && npm run site",
     "site": "npm run sync && astro build --root site && node scripts/redirects.mjs site/dist",
-    "dev": "npm run sync && astro dev --root site"
+    "dev": "npm run sync && astro dev --root site",
+    "lint": "biome ci --error-on-warnings .",
+    "format": "biome check --write .",
+    "typecheck": "npm run sync && astro check --root site"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.10",
@@ -22,5 +25,10 @@
     "unified": "11.0.5",
     "unist-util-visit": "5.2.0",
     "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@biomejs/biome": "2.6.3",
+    "typescript": "6.0.3"
   }
 }

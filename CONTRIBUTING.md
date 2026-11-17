@@ -14,11 +14,14 @@ mise install
 mise run install
 ```
 
-| Task | What it does |
-|------|--------------|
-| `mise run build` | Fetch every source and build the site into `site/dist` |
-| `mise run serve` | Serve the built site at <http://127.0.0.1:4410/docs/> |
+| Task                | What it does                                             |
+| ------------------- | -------------------------------------------------------- |
+| `mise run build`    | Fetch every source and build the site into `site/dist`   |
+| `mise run serve`    | Serve the built site at <http://127.0.0.1:4410/docs/>    |
 | `mise run assemble` | Fetch and assemble the sources without building the site |
+| `mise run lint` | Check formatting and lint with [Biome](https://biomejs.dev/) |
+| `mise run format` | Format the code and apply safe lint fixes |
+| `mise run typecheck` | Assemble the sources and type-check the site with `astro check` |
 
 To build against a local checkout instead of a source's `dev` branch, run
 `node assembler/assemble.mjs --base /docs/ --local core=../OpenShell` before

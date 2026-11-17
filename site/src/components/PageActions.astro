@@ -1,8 +1,9 @@
 ---
 import { pageFor } from '../versioning';
+
 // Page actions: Copy page / View as Markdown / Open in Claude / Open in ChatGPT, all driven by /<slug>.md.
 // The Markdown copy sits at the page's path plus .md (base path included).
-const md = Astro.url.pathname.replace(/\/$/, '') + '.md';
+const md = `${Astro.url.pathname.replace(/\/$/, '')}.md`;
 // The page's source on GitHub, from the assembler (absent when there's nowhere to edit it).
 const edit = pageFor(Astro.locals.starlightRoute.id)?.edit;
 ---
@@ -33,7 +34,7 @@ const edit = pageFor(Astro.locals.starlightRoute.id)?.edit;
       const menu = this.querySelector<HTMLElement>('[role=menu]')!;
       const toggle = this.querySelector<HTMLButtonElement>('.os-actions__toggle')!;
       const setOpen = (open: boolean) => { menu.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); };
-      toggle.addEventListener('click', () => setOpen(menu.hidden));
+      toggle.addEventListener('click', () => setOpen(!!menu.hidden));
       document.addEventListener('click', (e) => { if (!this.contains(e.target as Node)) setOpen(false); });
       this.addEventListener('keydown', (e) => { if (e.key === 'Escape') { setOpen(false); toggle.focus(); } });
       for (const a of this.querySelectorAll<HTMLAnchorElement>('[data-open]')) {

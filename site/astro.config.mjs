@@ -1,6 +1,7 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+
 import starlight from '@astrojs/starlight';
+import { defineConfig } from 'astro/config';
 
 // BASE_PATH is the path the site is served under (GitHub Pages: /<repo>/).
 export default defineConfig({
@@ -15,10 +16,19 @@ export default defineConfig({
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ai-openshell/docs' }],
       customCss: ['./src/styles/tokens.css', './src/styles/theme.css'],
       head: [
-        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: (process.env.BASE_PATH ?? '/') + 'apple-touch-icon.png' } },
+        {
+          tag: 'link',
+          attrs: { rel: 'apple-touch-icon', href: `${process.env.BASE_PATH ?? '/'}apple-touch-icon.png` },
+        },
         { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' } },
         { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' } },
-        { tag: 'link', attrs: { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap' } },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'stylesheet',
+            href: 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap',
+          },
+        },
       ],
       components: {
         Header: './src/components/overrides/Header.astro',
@@ -35,7 +45,14 @@ export default defineConfig({
           uiFontFamily: 'var(--os-font-sans)',
           codeFontSize: '0.8125rem',
           codeBackground: 'var(--os-surface)',
-          frames: { shadowColor: 'transparent', editorTabBarBackground: 'var(--os-surface)', terminalTitlebarBackground: 'var(--os-surface)', terminalTitlebarBorderBottomColor: 'var(--os-border)', terminalBackground: 'var(--os-surface)', terminalTitlebarDotsOpacity: '0.35' },
+          frames: {
+            shadowColor: 'transparent',
+            editorTabBarBackground: 'var(--os-surface)',
+            terminalTitlebarBackground: 'var(--os-surface)',
+            terminalTitlebarBorderBottomColor: 'var(--os-border)',
+            terminalBackground: 'var(--os-surface)',
+            terminalTitlebarDotsOpacity: '0.35',
+          },
         },
       },
       // Sidebar, pagination, topic tabs and the version picker all follow the

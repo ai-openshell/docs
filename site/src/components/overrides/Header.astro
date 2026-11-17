@@ -3,20 +3,23 @@
 // several docsets) sub-tabs for the topic's overview and each docset.
 // Tab and sub-tab links come from src/routeData.ts and follow the current
 // page's version context.
-import Search from 'virtual:starlight/components/Search';
-import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
-import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import Search from '@astrojs/starlight/components/Search.astro';
+import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro';
+import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
 
-const topics = (Astro.locals as any).osVersion?.topics ?? [];
-const fragment = !!(Astro.locals as any).osVersion?.fragment;
+const os = Astro.locals.osVersion;
+const topics = os?.topics ?? [];
+const fragment = !!os?.fragment;
 // A fragment preview names its docset in the header: "OpenShell Docker Driver".
-const name = fragment ? (Astro.locals as any).osVersion?.name : undefined;
-const ds = (Astro.locals as any).osVersion?.docsets;
+const name = fragment ? os?.name : undefined;
+const ds = os?.docsets;
 const subtabs = ds
   ? [
       ...(ds.topic.landing ? [{ label: 'Overview', href: ds.topic.landing, current: ds.topic.isLanding }] : []),
-      ...ds.items.map((d: any) => ({
-        label: d.title, href: d.href, current: d.current,
+      ...ds.items.map((d) => ({
+        label: d.title,
+        href: d.href,
+        current: d.current,
       })),
     ]
   : [];
@@ -37,7 +40,7 @@ const subtabs = ds
   </div>
   {!fragment && (
     <nav class="os-tabs print:hidden" aria-label="Topics">
-      {topics.map((t: any) => (
+      {topics.map((t) => (
         <a href={t.href} class="os-tab" aria-current={t.isCurrent ? 'true' : undefined}>{t.label}</a>
       ))}
     </nav>
@@ -45,18 +48,18 @@ const subtabs = ds
   {ds && ds.items.length > 1 && (
     <div class="os-subtabs print:hidden">
       <nav class="os-subtabs__links" aria-label={ds.topic.label}>
-        {subtabs.map((t: any) => (
+        {subtabs.map((t) => (
           <a href={t.href} class="os-subtab" aria-current={t.current ? 'true' : undefined}>{t.label}</a>
         ))}
       </nav>
       <!-- Narrow screens: the same choices as a dropdown -->
       <details class="os-subtabs__menu">
         <summary>
-          <span class="os-subtabs__current">{subtabs.find((t: any) => t.current)?.label ?? 'Overview'}</span>
+          <span class="os-subtabs__current">{subtabs.find((t) => t.current)?.label ?? 'Overview'}</span>
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
         </summary>
         <ul>
-          {subtabs.map((t: any) => (
+          {subtabs.map((t) => (
             <li>
               <a href={t.href} aria-current={t.current ? 'true' : undefined}>{t.label}</a>
             </li>

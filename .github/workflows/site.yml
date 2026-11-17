@@ -37,8 +37,12 @@ jobs:
           key: sources-${{ github.run_id }}
           restore-keys: sources-
       - run: npm ci
+      - name: Check formatting and lint
+        run: npm run lint
       - name: Assemble (fetches each source at its ref)
         run: node assembler/assemble.mjs --base /${{ github.event.repository.name }}/
+      - name: Type-check
+        run: npm run typecheck
       - name: Build site
         run: npm run site
         env:

@@ -1,5 +1,10 @@
 ---
-interface Props { path: string; type?: string; default?: string; required?: boolean }
+interface Props {
+  path: string;
+  type?: string;
+  default?: string;
+  required?: boolean;
+}
 const { path, type, default: def, required } = Astro.props;
 ---
 

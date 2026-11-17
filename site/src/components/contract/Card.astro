@@ -1,6 +1,11 @@
 ---
 import { Icon } from '@astrojs/starlight/components';
-interface Props { title: string; href?: string; icon?: string }
+
+interface Props {
+  title: string;
+  href?: string;
+  icon?: string;
+}
 const { title, href, icon } = Astro.props;
 const Tag = href ? 'a' : 'div';
 const external = href && /^https?:/.test(href);

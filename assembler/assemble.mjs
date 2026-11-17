@@ -43,33 +43,33 @@
 //   pages.json        every page with its docset and version
 //   sources.lock.json the commit each version was built from
 
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import YAML from "yaml";
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkMdx from "remark-mdx";
-import remarkGfm from "remark-gfm";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkStringify from "remark-stringify";
-import { visit } from "unist-util-visit";
-import GithubSlugger from "github-slugger";
-import { checkout } from "./fetch.mjs";
-import { join, pageKey, parseFrontmatter, read } from "./adapters.mjs";
-import { diffRelease } from "./diff.mjs";
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import GithubSlugger from 'github-slugger';
+import remarkFrontmatter from 'remark-frontmatter';
+import remarkGfm from 'remark-gfm';
+import remarkMdx from 'remark-mdx';
+import remarkParse from 'remark-parse';
+import remarkStringify from 'remark-stringify';
+import { unified } from 'unified';
+import { visit } from 'unist-util-visit';
+import YAML from 'yaml';
+import { join, pageKey, parseFrontmatter, read } from './adapters.mjs';
+import { diffRelease } from './diff.mjs';
+import { checkout } from './fetch.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, "..");
+const root = path.resolve(here, '..');
 const argv = process.argv.slice(2);
 const args = {};
 const locals = {};
 for (let i = 0; i < argv.length; i++) {
-  if (!argv[i].startsWith("--")) continue;
+  if (!argv[i].startsWith('--')) continue;
   const k = argv[i].slice(2);
   const v = argv[i + 1];
-  if (k === "local") {
-    const [id, p] = v.split("=");
+  if (k === 'local') {
+    const [id, p] = v.split('=');
     locals[id] = path.resolve(p);
   } else args[k] = v;
   i++;
@@ -78,14 +78,14 @@ const PREVIEW = args.preview;
 // Preview layout: "fragment" (default: header naming the docset, its sidebar
 // and content) or "full" (the site's tabs, sub-tabs and version picker,
 // linking to the live site).
-const LAYOUT = args.layout ?? (PREVIEW ? "fragment" : "full");
-if (!["full", "fragment"].includes(LAYOUT)) throw new Error(`--layout must be full or fragment`);
-const out = path.resolve(args.out ?? path.join(root, "build", PREVIEW ? "preview" : "assembled"));
-const cache = path.resolve(args.cache ?? path.join(root, ".cache/sources"));
-const BASE = ("/" + (args.base ?? process.env.BASE_PATH ?? "/") + "/").replace(/\/+/g, "/");
-const url = (slug, hash = "") => `${BASE}${slug ? slug + "/" : ""}${hash}`;
+const LAYOUT = args.layout ?? (PREVIEW ? 'fragment' : 'full');
+if (!['full', 'fragment'].includes(LAYOUT)) throw new Error(`--layout must be full or fragment`);
+const out = path.resolve(args.out ?? path.join(root, 'build', PREVIEW ? 'preview' : 'assembled'));
+const cache = path.resolve(args.cache ?? path.join(root, '.cache/sources'));
+const BASE = `/${args.base ?? process.env.BASE_PATH ?? '/'}/`.replace(/\/+/g, '/');
+const url = (slug, hash = '') => `${BASE}${slug ? `${slug}/` : ''}${hash}`;
 // a page on the live site (preview builds link there for other repos)
-const liveUrl = (slug, hash = "") => `${SITE}/${slug ? slug + "/" : ""}${hash}`;
+const liveUrl = (slug, hash = '') => `${SITE}/${slug ? `${slug}/` : ''}${hash}`;
 const errors = [];
 const warnings = [];
 fs.rmSync(out, { recursive: true, force: true });
@@ -93,13 +93,13 @@ fs.rmSync(out, { recursive: true, force: true });
 // ---------- 0. what to build ----------
 let index = null;
 if (PREVIEW) {
-  for (const k of ["path", "index", "site"]) if (!args[k]) throw new Error(`--preview needs --${k}`);
+  for (const k of ['path', 'index', 'site']) if (!args[k]) throw new Error(`--preview needs --${k}`);
   index = /^https?:/.test(args.index)
     ? await (await fetch(args.index)).json()
-    : JSON.parse(fs.readFileSync(args.index, "utf8"));
+    : JSON.parse(fs.readFileSync(args.index, 'utf8'));
   if (!index.docsets[PREVIEW]) throw new Error(`${PREVIEW} is not in the published index`);
 }
-const SITE = (args.site ?? "").replace(/\/$/, "");
+const SITE = (args.site ?? '').replace(/\/$/, '');
 const manifest = PREVIEW
   ? {
       site: { title: index.title },
@@ -108,11 +108,11 @@ const manifest = PREVIEW
         [PREVIEW]: {
           ...index.docsets[PREVIEW],
           versions: [],
-          dev: { ref: args.ref ?? "working tree", local: path.resolve(args.path) },
+          dev: { ref: args.ref ?? 'working tree', local: path.resolve(args.path) },
         },
       },
     }
-  : YAML.parse(fs.readFileSync(path.join(root, "sources.yml"), "utf8"));
+  : YAML.parse(fs.readFileSync(path.join(root, 'sources.yml'), 'utf8'));
 const allIds = PREVIEW ? Object.keys(index.docsets) : Object.keys(manifest.sources);
 
 // One entry per (source, version). dev (if any) first, then releases newest first.
@@ -120,10 +120,27 @@ const wanted = [];
 for (const [id, src] of Object.entries(manifest.sources)) {
   if (src.dev) {
     const local = src.dev.local ?? locals[id];
-    wanted.push({ id, src, name: "dev", dev: true, repo: src.dev.repo ?? src.repo, ref: src.dev.ref, subdir: src.dev.path ?? src.path, local });
+    wanted.push({
+      id,
+      src,
+      name: 'dev',
+      dev: true,
+      repo: src.dev.repo ?? src.repo,
+      ref: src.dev.ref,
+      subdir: src.dev.path ?? src.path,
+      local,
+    });
   }
   for (const v of src.versions)
-    wanted.push({ id, src, name: v.name ?? v.ref.replace(/^v/, ""), dev: false, repo: v.repo ?? src.repo, ref: v.ref, subdir: v.path ?? src.path });
+    wanted.push({
+      id,
+      src,
+      name: v.name ?? v.ref.replace(/^v/, ''),
+      dev: false,
+      repo: v.repo ?? src.repo,
+      ref: v.ref,
+      subdir: v.path ?? src.path,
+    });
 }
 
 // ---------- 1. fetch ----------
@@ -132,7 +149,7 @@ await Promise.all(
   wanted.map(async (w) => {
     if (w.local) {
       w.dir = path.join(w.local, w.subdir);
-      w.sha = "working-tree";
+      w.sha = 'working-tree';
     } else Object.assign(w, await checkout(w, cache));
   }),
 );
@@ -141,28 +158,32 @@ console.log(`fetched ${wanted.length} versions in ${((Date.now() - t0) / 1000).t
 // ---------- 2. read ----------
 const parserMdx = unified().use(remarkParse).use(remarkMdx).use(remarkGfm).use(remarkFrontmatter);
 const parserMd = unified().use(remarkParse).use(remarkGfm).use(remarkFrontmatter);
-const textOf = (n) => (n.type === "text" || n.type === "inlineCode" ? n.value : (n.children ?? []).map(textOf).join(""));
+const textOf = (n) =>
+  n.type === 'text' || n.type === 'inlineCode' ? n.value : (n.children ?? []).map(textOf).join('');
 // Apply fn to the parts of a page outside code (fenced blocks and inline code).
 const outsideCode = (body, fn) =>
   body
     .split(/(^[ \t]*(?:```|~~~)[^\n]*\n[\s\S]*?^[ \t]*(?:```|~~~)[ \t]*$|`[^`\n]+`)/m)
     .map((part, i) => (i % 2 ? part : fn(part)))
-    .join("");
+    .join('');
 // Fern's custom heading ids ("## Title {#id}") aren't MDX: keep the id as an anchor.
 const fernIds = (body, ids = []) =>
   outsideCode(body, (part) =>
-    part.replace(/^(#{1,6}\s.*?)\s*\{#([\w-]+)\}\s*$/gm, (_, h, id) => (ids.push(id), `${h} <a id="${id}"></a>`)),
+    part.replace(/^(#{1,6}\s.*?)\s*\{#([\w-]+)\}\s*$/gm, (_, h, id) => {
+      ids.push(id);
+      return `${h} <a id="${id}"></a>`;
+    }),
   );
 // Heading ids, as Astro/Starlight generate them (github-slugger).
 function anchorsOf(body, ext) {
   const slugger = new GithubSlugger();
   const ids = [];
   try {
-    visit((ext === "md" ? parserMd : parserMdx).parse(body), "heading", (h) => {
+    visit((ext === 'md' ? parserMd : parserMdx).parse(body), 'heading', (h) => {
       ids.push(slugger.slug(textOf(h)));
     });
   } catch {
-    for (const m of body.matchAll(/^#{1,6}\s+(.*)$/gm)) ids.push(slugger.slug(m[1].replace(/`/g, "")));
+    for (const m of body.matchAll(/^#{1,6}\s+(.*)$/gm)) ids.push(slugger.slug(m[1].replace(/`/g, '')));
   }
   return ids;
 }
@@ -183,14 +204,27 @@ for (const w of wanted) {
     continue;
   }
   const rel = {
-    id: w.id, version: w.name, dev: w.dev, local: !!w.local, ref: w.ref, sha: w.sha, repo: w.repo, path: w.subdir,
-    mount: w.src.mount, prefix: join(w.src.mount, w.name), name, format: docs.format,
+    id: w.id,
+    version: w.name,
+    dev: w.dev,
+    local: !!w.local,
+    ref: w.ref,
+    sha: w.sha,
+    repo: w.repo,
+    path: w.subdir,
+    mount: w.src.mount,
+    prefix: join(w.src.mount, w.name),
+    name,
+    format: docs.format,
     title: docs.meta.title ?? w.src.title ?? w.id,
     description: docs.meta.description ?? w.src.description,
-    redirects: docs.meta.redirects ?? {}, nav: docs.nav, pages: [], assets: new Set(docs.assets),
+    redirects: docs.meta.redirects ?? {},
+    nav: docs.nav,
+    pages: [],
+    assets: new Set(docs.assets),
     preview: !!PREVIEW,
   };
-  problems.forEach((p) => report(rel, p));
+  for (const p of problems) report(rel, p);
   const seen = new Set();
   for (const p of docs.pages) {
     if (seen.has(p.key)) {
@@ -206,7 +240,7 @@ for (const w of wanted) {
     rel.pages.push(page);
   }
   for (const a of rel.assets) {
-    const dest = path.join(out, "public", rel.prefix, a);
+    const dest = path.join(out, 'public', rel.prefix, a);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(path.join(w.dir, a), dest);
   }
@@ -215,20 +249,31 @@ for (const w of wanted) {
 }
 // latest = the newest release; a docset with only a dev version uses dev.
 // (A preview is never latest: the published index says which release is.)
-if (!PREVIEW) for (const id of Object.keys(manifest.sources)) {
-  const first = releasesOf[id].find((r) => !r.dev) ?? releasesOf[id][0];
-  if (first) first.latest = true;
-}
+if (!PREVIEW)
+  for (const id of Object.keys(manifest.sources)) {
+    const first = releasesOf[id].find((r) => !r.dev) ?? releasesOf[id][0];
+    if (first) first.latest = true;
+  }
 const bySlug = new Map(pages.map((p) => [p.slug, p]));
 
 // Experimental diff view (preview only): mark changes against the PR's base.
 let diff = null;
-if (PREVIEW && args["diff-base"]) {
+if (PREVIEW && args['diff-base']) {
   const w = wanted[0];
   const problems = [];
-  diff = { base: args["diff-label"] ?? "base", ...diffRelease(releases[0], read(path.join(path.resolve(args["diff-base"]), w.subdir), problems), fernIds, problems) };
-  problems.forEach((p) => warnings.push(`diff: ${p}`));
-  console.log(`diff against ${diff.base}: ${diff.changed.length} changed, ${diff.added.length} new, ${diff.removed.length} removed`);
+  diff = {
+    base: args['diff-label'] ?? 'base',
+    ...diffRelease(
+      releases[0],
+      read(path.join(path.resolve(args['diff-base']), w.subdir), problems),
+      fernIds,
+      problems,
+    ),
+  };
+  for (const p of problems) warnings.push(`diff: ${p}`);
+  console.log(
+    `diff against ${diff.base}: ${diff.changed.length} changed, ${diff.added.length} new, ${diff.removed.length} removed`,
+  );
 }
 
 // Releases known only from the published index (preview mode): page keys,
@@ -240,9 +285,22 @@ if (PREVIEW) {
     for (const v of d.versions) {
       if (id === PREVIEW && v.dev) continue;
       const rel = {
-        id, version: v.name, dev: !!v.dev, ref: v.ref, sha: v.sha, repo: d.repo, mount: d.mount, latest: v.name === d.latest,
-        prefix: v.prefix, name: `${id}@${v.name}`, remote: true, redirects: v.redirects ?? {}, pageInfo: v.pages, first: v.first,
-        title: d.title, description: d.description,
+        id,
+        version: v.name,
+        dev: !!v.dev,
+        ref: v.ref,
+        sha: v.sha,
+        repo: d.repo,
+        mount: d.mount,
+        latest: v.name === d.latest,
+        prefix: v.prefix,
+        name: `${id}@${v.name}`,
+        remote: true,
+        redirects: v.redirects ?? {},
+        pageInfo: v.pages,
+        first: v.first,
+        title: d.title,
+        description: d.description,
       };
       releasesOf[id].push(rel);
       for (const [key, info] of Object.entries(v.pages)) remoteSlugs.set(join(v.prefix, key), info);
@@ -260,7 +318,7 @@ function firstOf(rel) {
   if (rel.remote) return rel.first;
   const walkNav = (items) => {
     for (const it of items) {
-      if (it.type === "page") return join(rel.prefix, it.key);
+      if (it.type === 'page') return join(rel.prefix, it.key);
       const s = it.items && walkNav(it.items);
       if (s !== undefined) return s;
     }
@@ -273,7 +331,10 @@ function checked(slug, anchor, original, page, rel) {
   const soft = !strict(page.rel);
   if (!t) {
     const msg = `${page.relPath}: broken link "${original}" -> /${slug}`;
-    if (!soft) return errors.push(`${page.rel.name}: ${msg}`), original;
+    if (!soft) {
+      errors.push(`${page.rel.name}: ${msg}`);
+      return original;
+    }
     warnings.push(`${page.rel.name}: ${msg}; using the first page of ${rel.name}`);
     return link(firstOf(rel));
   }
@@ -283,11 +344,11 @@ function checked(slug, anchor, original, page, rel) {
     else warnings.push(`${page.rel.name}: ${msg}; linking the page`);
     return link(slug);
   }
-  return link(slug, anchor ? `#${anchor}` : "");
+  return link(slug, anchor ? `#${anchor}` : '');
 }
 function resolveLink(raw, page) {
   if (/^(https?:|mailto:|tel:|data:|#|\/\/)/i.test(raw)) return raw;
-  const [p, anchor] = raw.split("#");
+  const [p, anchor] = raw.split('#');
   const rel = page.rel;
   const scheme = p.match(/^([a-z0-9-]+):\/\/(.*)$/);
   if (scheme) {
@@ -298,11 +359,14 @@ function resolveLink(raw, page) {
     }
     const t = id === rel.id ? rel : (rel.dev && devOf(id)) || latestOf(id);
     const key = t.redirects?.[pageKey(rest)] ?? pageKey(rest);
-    crossLinks.push({ from: { docset: rel.id, version: rel.version, page: page.key }, to: { docset: id, version: t.version, key, ...(anchor ? { anchor } : {}) } });
+    crossLinks.push({
+      from: { docset: rel.id, version: rel.version, page: page.key },
+      to: { docset: id, version: t.version, key, ...(anchor ? { anchor } : {}) },
+    });
     return checked(join(t.prefix, key), anchor, raw, page, t);
   }
-  if (p.startsWith("/")) {
-    const key = pageKey(p.slice(1).replace(/\/$/, ""));
+  if (p.startsWith('/')) {
+    const key = pageKey(p.slice(1).replace(/\/$/, ''));
     return checked(join(rel.prefix, rel.redirects[key] ?? key), anchor, raw, page, rel);
   }
   if (!p) return raw;
@@ -312,13 +376,13 @@ function resolveLink(raw, page) {
     if (!rel.assets.has(abs)) report(rel, `${page.relPath}: missing file "${raw}"`);
     return BASE + join(rel.prefix, abs);
   }
-  const byFile = rel.pages.find((x) => x.relPath.replace(/\.mdx?$/, "") === abs.replace(/\.mdx?$/, ""));
+  const byFile = rel.pages.find((x) => x.relPath.replace(/\.mdx?$/, '') === abs.replace(/\.mdx?$/, ''));
   return checked(join(rel.prefix, byFile ? byFile.key : pageKey(abs)), anchor, raw, page, rel);
 }
 const rewrite = (body, fn) =>
   outsideCode(body, (part) =>
     part
-      .replace(/\]\(([^)\s*\[\]{}]+)\)/g, (_, t) => `](${fn(t)})`)
+      .replace(/\]\(([^)\s*[\]{}]+)\)/g, (_, t) => `](${fn(t)})`)
       .replace(/\b(href|src)="([^"]+)"/g, (_, a, t) => `${a}="${fn(t)}"`),
   );
 for (const page of pages) page.body = rewrite(page.body, (t) => resolveLink(t, page));
@@ -327,10 +391,10 @@ for (const page of pages) page.body = rewrite(page.body, (t) => resolveLink(t, p
 // <llms-only> blocks exist only in the Markdown output; <llms-ignore> only on the site.
 const siteBody = (body) =>
   body
-    .replace(/<llms-only>[\s\S]*?<\/llms-only>\n?/g, "")
-    .replace(/<\/?llms-ignore>\n?/g, "")
+    .replace(/<llms-only>[\s\S]*?<\/llms-only>\n?/g, '')
+    .replace(/<\/?llms-ignore>\n?/g, '')
     // Fern-era pages import their custom components; the site provides them
-    .replace(/^import\s+[^;\n]*from\s+["']\.[^"']*_components[^"']*["'];?\s*$/gm, "");
+    .replace(/^import\s+[^;\n]*from\s+["']\.[^"']*_components[^"']*["'];?\s*$/gm, '');
 const writeFile = (rel, text) => {
   const dest = path.join(out, rel);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -345,9 +409,9 @@ for (const page of pages) {
     version: rel.version,
     source: `${rel.repo}@${rel.ref} (${String(rel.sha).slice(0, 12)}):${rel.path}/${page.relPath}`,
   };
-  Object.keys(fm).forEach((k) => fm[k] === undefined && delete fm[k]);
-  page.outRel = (page.key ? page.slug : join(rel.prefix, "index")) + "." + page.ext;
-  writeFile(path.join("content", page.outRel), `---\n${YAML.stringify(fm)}---\n${siteBody(page.body)}`);
+  for (const k of Object.keys(fm)) if (fm[k] === undefined) delete fm[k];
+  page.outRel = `${page.key ? page.slug : join(rel.prefix, 'index')}.${page.ext}`;
+  writeFile(path.join('content', page.outRel), `---\n${YAML.stringify(fm)}---\n${siteBody(page.body)}`);
 }
 
 // "Edit this page": the same page on the source's dev branch (a tag can't be
@@ -355,7 +419,7 @@ for (const page of pages) {
 // No link when the dev branch no longer has the page.
 function editUrl(page) {
   const dev = releasesOf[page.rel.id].find((r) => r.dev && !r.remote);
-  const repo = PREVIEW ? (args["edit-repo"] ?? dev?.repo) : dev?.repo;
+  const repo = PREVIEW ? (args['edit-repo'] ?? dev?.repo) : dev?.repo;
   const ref = PREVIEW ? args.branch : dev?.ref;
   if (!dev || !ref || !/^[\w.-]+\/[\w.-]+$/.test(repo)) return undefined;
   const same = dev.pages.find((x) => x.key === page.key);
@@ -365,14 +429,19 @@ function editUrl(page) {
 // ---------- 5. nav.json + pages.json ----------
 const navItems = (items, rel) =>
   items.map((it) =>
-    it.type === "group"
-      ? { type: "group", label: it.label, items: navItems(it.items, rel) }
-      : it.type === "link"
-        ? { type: "link", label: it.label, href: it.href }
-        : { type: "page", label: it.label, slug: join(rel.prefix, it.key) },
+    it.type === 'group'
+      ? { type: 'group', label: it.label, items: navItems(it.items, rel) }
+      : it.type === 'link'
+        ? { type: 'link', label: it.label, href: it.href }
+        : { type: 'page', label: it.label, slug: join(rel.prefix, it.key) },
   );
 const versionEntry = (rel) => ({
-  name: rel.version, ref: rel.ref, sha: rel.sha, prefix: rel.prefix, latest: !!rel.latest, dev: !!rel.dev,
+  name: rel.version,
+  ref: rel.ref,
+  sha: rel.sha,
+  prefix: rel.prefix,
+  latest: !!rel.latest,
+  dev: !!rel.dev,
   first: firstOf(rel),
   redirects: rel.redirects,
   pages: rel.remote ? Object.keys(rel.pageInfo) : rel.pages.map((p) => p.key),
@@ -386,9 +455,13 @@ for (const id of allIds) {
   if (!rels.length) continue;
   const latest = latestOf(id);
   docsets[id] = {
-    title: latest.title, description: latest.description, mount: latest.mount, repo: rels[0].repo,
+    title: latest.title,
+    description: latest.description,
+    mount: latest.mount,
+    repo: rels[0].repo,
     path: manifest.sources[id]?.path ?? index?.docsets[id]?.path,
-    latest: latest.version, versions: rels.map(versionEntry),
+    latest: latest.version,
+    versions: rels.map(versionEntry),
   };
 }
 
@@ -396,13 +469,23 @@ for (const id of allIds) {
 // from the site repo, then one card per docset linking its latest release.
 const landings = [];
 function introFor(t) {
-  if (!t.intro) return "";
+  if (!t.intro) return '';
   const file = path.join(root, t.intro);
-  if (!fs.existsSync(file)) return errors.push(`topic ${t.id}: intro ${t.intro} not found`), "";
-  const page = { rel: { id: "site", version: "topics", name: `topic ${t.id}`, strict: true, redirects: {} }, relPath: t.intro, key: t.id };
-  return rewrite(parseFrontmatter(fs.readFileSync(file, "utf8")).body.trim(), (x) => {
+  if (!fs.existsSync(file)) {
+    errors.push(`topic ${t.id}: intro ${t.intro} not found`);
+    return '';
+  }
+  const page = {
+    rel: { id: 'site', version: 'topics', name: `topic ${t.id}`, strict: true, redirects: {} },
+    relPath: t.intro,
+    key: t.id,
+  };
+  return rewrite(parseFrontmatter(fs.readFileSync(file, 'utf8')).body.trim(), (x) => {
     if (/^(https?:|mailto:|#)/.test(x)) return x;
-    if (!/^[a-z0-9-]+:\/\//.test(x)) return errors.push(`${t.intro}: link "${x}" must be a repo:// link`), x;
+    if (!/^[a-z0-9-]+:\/\//.test(x)) {
+      errors.push(`${t.intro}: link "${x}" must be a repo:// link`);
+      return x;
+    }
     return resolveLink(x, page);
   });
 }
@@ -413,44 +496,102 @@ if (!PREVIEW) {
     const cards = t.sources.map((id) => {
       const d = docsets[id];
       const latest = d.versions.find((v) => v.name === d.latest);
-      return `<Card title="${d.title}" href="${url(latest.first)}">\n\n${d.description ?? ""}\n\nLatest: ${latest.name}\n\n</Card>`;
+      return `<Card title="${d.title}" href="${url(latest.first)}">\n\n${d.description ?? ''}\n\nLatest: ${latest.name}\n\n</Card>`;
     });
     const body = [
       ...(intro ? [intro, `## Available ${/^[A-Z][a-z]/.test(t.label) ? t.label.toLowerCase() : t.label}`] : []),
-      `<Cards>\n\n${cards.join("\n\n")}\n\n</Cards>`,
-    ].join("\n\n");
+      `<Cards>\n\n${cards.join('\n\n')}\n\n</Cards>`,
+    ].join('\n\n');
     const outRel = `${t.id}/index.mdx`;
-    writeFile(path.join("content", outRel), `---\n${YAML.stringify({ title: t.label, description: t.description })}---\n${body}\n`);
+    writeFile(
+      path.join('content', outRel),
+      `---\n${YAML.stringify({ title: t.label, description: t.description })}---\n${body}\n`,
+    );
     landings.push({ topic: t.id, slug: t.id, outRel, title: t.label, description: t.description, body });
   }
 }
-const landingOf = (t) => (PREVIEW ? index.topics.find((x) => x.id === t.id)?.landing : landings.find((l) => l.topic === t.id)?.slug);
+const landingOf = (t) =>
+  PREVIEW ? index.topics.find((x) => x.id === t.id)?.landing : landings.find((l) => l.topic === t.id)?.slug;
 const local = releases;
 const nav = {
   title: manifest.site.title,
   base: BASE,
-  ...(PREVIEW ? { site: SITE, layout: LAYOUT, preview: { docset: PREVIEW, repo: local[0]?.repo, ref: local[0]?.ref, ...(args["ref-url"] ? { url: args["ref-url"] } : {}), ...(diff ? { diff: { base: diff.base, changed: diff.changed.length, added: diff.added.length, removed: diff.removed.map((r) => r.title) } } : {}) } } : {}),
+  ...(PREVIEW
+    ? {
+        site: SITE,
+        layout: LAYOUT,
+        preview: {
+          docset: PREVIEW,
+          repo: local[0]?.repo,
+          ref: local[0]?.ref,
+          ...(args['ref-url'] ? { url: args['ref-url'] } : {}),
+          ...(diff
+            ? {
+                diff: {
+                  base: diff.base,
+                  changed: diff.changed.length,
+                  added: diff.added.length,
+                  removed: diff.removed.map((r) => r.title),
+                },
+              }
+            : {}),
+        },
+      }
+    : {}),
   topics: manifest.topics.map((t) => ({ id: t.id, label: t.label, sources: t.sources, landing: landingOf(t) })),
   docsets,
 };
-writeFile("nav.json", JSON.stringify(nav, null, 2));
+writeFile('nav.json', JSON.stringify(nav, null, 2));
 writeFile(
-  "pages.json",
+  'pages.json',
   JSON.stringify(
     pages
       .map((p) => ({
-        slug: p.slug, file: p.outRel, title: p.data.title, source: p.rel.id, version: p.rel.version,
-        latest: !!p.rel.latest, dev: !!p.rel.dev, key: p.key, edit: editUrl(p), ...(p.diff ? { diff: p.diff } : {}), ...(PREVIEW ? { preview: true } : {}),
+        slug: p.slug,
+        file: p.outRel,
+        title: p.data.title,
+        source: p.rel.id,
+        version: p.rel.version,
+        latest: !!p.rel.latest,
+        dev: !!p.rel.dev,
+        key: p.key,
+        edit: editUrl(p),
+        ...(p.diff ? { diff: p.diff } : {}),
+        ...(PREVIEW ? { preview: true } : {}),
       }))
-      .concat(landings.map((l) => ({ slug: l.slug, file: l.outRel, title: l.title, source: null, topic: l.topic, latest: true, key: "" }))),
+      .concat(
+        landings.map((l) => ({
+          slug: l.slug,
+          file: l.outRel,
+          title: l.title,
+          source: null,
+          topic: l.topic,
+          latest: true,
+          key: '',
+        })),
+      ),
     null,
     2,
   ),
 );
-if (diff) writeFile("diff.json", JSON.stringify({ ...diff, url: url(""), pages: [...diff.changed, ...diff.added].map((p) => ({ ...p, url: url(p.slug) })) }, null, 2));
+if (diff)
+  writeFile(
+    'diff.json',
+    JSON.stringify(
+      { ...diff, url: url(''), pages: [...diff.changed, ...diff.added].map((p) => ({ ...p, url: url(p.slug) })) },
+      null,
+      2,
+    ),
+  );
 writeFile(
-  "sources.lock.json",
-  JSON.stringify(Object.fromEntries(local.map((r) => [r.name, { repo: r.repo, ref: r.ref, sha: r.sha, path: r.path, format: r.format }])), null, 2),
+  'sources.lock.json',
+  JSON.stringify(
+    Object.fromEntries(
+      local.map((r) => [r.name, { repo: r.repo, ref: r.ref, sha: r.sha, path: r.path, format: r.format }]),
+    ),
+    null,
+    2,
+  ),
 );
 
 // ---------- 6. Markdown for agents ----------
@@ -458,69 +599,97 @@ const attr = (node, name) => {
   const a = node.attributes?.find((x) => x.name === name);
   if (!a) return undefined;
   if (a.value === null) return true;
-  return typeof a.value === "string" ? a.value : a.value?.value;
+  return typeof a.value === 'string' ? a.value : a.value?.value;
 };
-const text = (value) => ({ type: "text", value });
-const strong = (...children) => ({ type: "strong", children });
-const para = (...children) => ({ type: "paragraph", children });
-const CALLOUTS = { Note: "Note", Tip: "Tip", Info: "Info", Warning: "Warning", Error: "Danger", Check: "Check" };
+const text = (value) => ({ type: 'text', value });
+const strong = (...children) => ({ type: 'strong', children });
+const para = (...children) => ({ type: 'paragraph', children });
+const CALLOUTS = { Note: 'Note', Tip: 'Tip', Info: 'Info', Warning: 'Warning', Error: 'Danger', Check: 'Check' };
 function convert(node, where) {
   if (!node.children) return [node];
   node.children = node.children.flatMap((c) => convert(c, where));
-  if (node.type === "mdxjsEsm" || node.type === "mdxFlowExpression") return [];
-  if (node.type !== "mdxJsxFlowElement" && node.type !== "mdxJsxTextElement") return [node];
+  if (node.type === 'mdxjsEsm' || node.type === 'mdxFlowExpression') return [];
+  if (node.type !== 'mdxJsxFlowElement' && node.type !== 'mdxJsxTextElement') return [node];
   const kids = node.children;
   if (CALLOUTS[node.name]) {
-    const title = attr(node, "title");
+    const title = attr(node, 'title');
     const label = strong(text(title ? `${CALLOUTS[node.name]}: ${title}` : `${CALLOUTS[node.name]}:`));
     const [first, ...rest] = kids;
-    return [{ type: "blockquote", children: first?.type === "paragraph" ? [para(label, text(" "), ...first.children), ...rest] : [para(label), ...kids] }];
+    return [
+      {
+        type: 'blockquote',
+        children:
+          first?.type === 'paragraph' ? [para(label, text(' '), ...first.children), ...rest] : [para(label), ...kids],
+      },
+    ];
   }
   switch (node.name) {
-    case "Tabs": case "Steps": case "AccordionGroup": case "llms-only": case "div": case "span":
+    case 'Tabs':
+    case 'Steps':
+    case 'AccordionGroup':
+    case 'llms-only':
+    case 'div':
+    case 'span':
       return kids;
-    case "Tab": case "Accordion":
-      return [para(strong(text(attr(node, "title") ?? ""))), ...kids];
-    case "Cards":
-      return [{ type: "list", ordered: false, spread: false, children: kids.filter((k) => k.type === "listItem") }];
-    case "Card": {
-      const desc = kids.filter((k) => k.type === "paragraph").map(textOf).join(" ").trim();
-      const link = { type: "link", url: attr(node, "href") ?? "#", children: [text(attr(node, "title") ?? "")] };
-      return [{ type: "listItem", spread: false, children: [para(link, ...(desc ? [text(`: ${desc}`)] : []))] }];
+    case 'Tab':
+    case 'Accordion':
+      return [para(strong(text(attr(node, 'title') ?? ''))), ...kids];
+    case 'Cards':
+      return [{ type: 'list', ordered: false, spread: false, children: kids.filter((k) => k.type === 'listItem') }];
+    case 'Card': {
+      const desc = kids
+        .filter((k) => k.type === 'paragraph')
+        .map(textOf)
+        .join(' ')
+        .trim();
+      const link = { type: 'link', url: attr(node, 'href') ?? '#', children: [text(attr(node, 'title') ?? '')] };
+      return [{ type: 'listItem', spread: false, children: [para(link, ...(desc ? [text(`: ${desc}`)] : []))] }];
     }
-    case "Badge":
-      return node.type === "mdxJsxTextElement" ? [text(`[${textOf(node)}]`)] : [para(text(`[${textOf(node)}]`))];
-    case "ParamField": {
+    case 'Badge':
+      return node.type === 'mdxJsxTextElement' ? [text(`[${textOf(node)}]`)] : [para(text(`[${textOf(node)}]`))];
+    case 'ParamField': {
       const meta = [];
-      const push = (...n) => meta.push(...(meta.length ? [text(", ")] : []), ...n);
-      if (attr(node, "type")) push({ type: "inlineCode", value: attr(node, "type") });
-      if (attr(node, "default")) push(text("default "), { type: "inlineCode", value: attr(node, "default") });
-      if (attr(node, "required")) push(text("required"));
-      return [para(strong({ type: "inlineCode", value: attr(node, "path") ?? "" }), ...(meta.length ? [text(" ("), ...meta, text(")")] : [])), ...kids];
+      const push = (...n) => meta.push(...(meta.length ? [text(', ')] : []), ...n);
+      if (attr(node, 'type')) push({ type: 'inlineCode', value: attr(node, 'type') });
+      if (attr(node, 'default')) push(text('default '), { type: 'inlineCode', value: attr(node, 'default') });
+      if (attr(node, 'required')) push(text('required'));
+      return [
+        para(
+          strong({ type: 'inlineCode', value: attr(node, 'path') ?? '' }),
+          ...(meta.length ? [text(' ('), ...meta, text(')')] : []),
+        ),
+        ...kids,
+      ];
     }
-    case "CommandTerminal":
-      return [{ type: "code", lang: "shell", value: attr(node, "command") ?? "" }];
-    case "a": // anchors kept from Fern heading ids carry no text
-      return attr(node, "href") ? [{ type: "link", url: attr(node, "href"), children: kids }] : kids;
-    case "BadgeLinks": case "llms-ignore":
+    case 'CommandTerminal':
+      return [{ type: 'code', lang: 'shell', value: attr(node, 'command') ?? '' }];
+    case 'a': // anchors kept from Fern heading ids carry no text
+      return attr(node, 'href') ? [{ type: 'link', url: attr(node, 'href'), children: kids }] : kids;
+    case 'BadgeLinks':
+    case 'llms-ignore':
       return [];
     default:
       warnings.push(`${where}: no Markdown mapping for <${node.name}>`);
       return kids;
   }
 }
-const stringify = { bullet: "-", fences: true, rule: "-" };
-const mdx2md = unified().use(remarkParse).use(remarkMdx).use(remarkGfm).use(remarkFrontmatter).use(remarkStringify, stringify);
+const stringify = { bullet: '-', fences: true, rule: '-' };
+const mdx2md = unified()
+  .use(remarkParse)
+  .use(remarkMdx)
+  .use(remarkGfm)
+  .use(remarkFrontmatter)
+  .use(remarkStringify, stringify);
 const md2md = unified().use(remarkParse).use(remarkGfm).use(remarkFrontmatter).use(remarkStringify, stringify);
 const mdUrl = (slug) => `${BASE}${slug}.md`;
 const toMarkdown = (body, ext, where) => {
-  const proc = ext === "md" ? md2md : mdx2md;
+  const proc = ext === 'md' ? md2md : mdx2md;
   try {
     const tree = proc.parse(body);
     convert(tree, where);
     return proc.stringify(tree);
   } catch (e) {
-    warnings.push(`${where}: Markdown conversion failed (${e.message.split("\n")[0]}); publishing the source`);
+    warnings.push(`${where}: Markdown conversion failed (${e.message.split('\n')[0]}); publishing the source`);
     return body;
   }
 };
@@ -532,64 +701,113 @@ for (const page of pages) {
   const latestMd = latest.remote ? `${SITE}/${latestSlug}.md` : mdUrl(latestSlug);
   const status = PREVIEW
     ? `> Preview build of ${rel.repo} (${rel.ref}); not published. Published version (${latest.version}): ${latestMd}`
-    : rel.dev && !rel.latest ? `> These docs are for the development version (${rel.repo}@${rel.ref}). Latest released version (${latest.version}): ${latestMd}`
-      : rel.latest ? null : `> This is not the latest version. Latest (${latest.version}): ${latestMd}`;
+    : rel.dev && !rel.latest
+      ? `> These docs are for the development version (${rel.repo}@${rel.ref}). Latest released version (${latest.version}): ${latestMd}`
+      : rel.latest
+        ? null
+        : `> This is not the latest version. Latest (${latest.version}): ${latestMd}`;
   const header = [
-    "---",
+    '---',
     YAML.stringify({
-      title: page.data.title, description: page.data.description, url: url(page.slug), docset: rel.id,
-      version: rel.version, latest_version: latest.version, source: `${rel.repo}@${rel.ref}:${rel.path}/${page.relPath}`,
+      title: page.data.title,
+      description: page.data.description,
+      url: url(page.slug),
+      docset: rel.id,
+      version: rel.version,
+      latest_version: latest.version,
+      source: `${rel.repo}@${rel.ref}:${rel.path}/${page.relPath}`,
     }).trim(),
-    "---",
-    "",
+    '---',
+    '',
     `> Documentation index: ${BASE}${rel.prefix}/llms.txt. This page is for ${rel.title} ${rel.version}.`,
     ...(status ? [status] : []),
-    "",
+    '',
     `# ${page.data.title}`,
-    "",
-    "",
-  ].join("\n");
-  writeFile(path.join("public", page.slug + ".md"), header + toMarkdown(page.body, page.ext, `${rel.name}/${page.relPath}`));
+    '',
+    '',
+  ].join('\n');
+  writeFile(
+    path.join('public', `${page.slug}.md`),
+    header + toMarkdown(page.body, page.ext, `${rel.name}/${page.relPath}`),
+  );
 }
 for (const l of landings) {
-  const header = ["---", YAML.stringify({ title: l.title, description: l.description, url: url(l.slug) }).trim(), "---", "", `> Documentation index: ${BASE}llms.txt.`, "", `# ${l.title}`, "", ""].join("\n");
-  writeFile(path.join("public", l.slug + ".md"), header + toMarkdown(l.body, "mdx", l.outRel));
+  const header = [
+    '---',
+    YAML.stringify({ title: l.title, description: l.description, url: url(l.slug) }).trim(),
+    '---',
+    '',
+    `> Documentation index: ${BASE}llms.txt.`,
+    '',
+    `# ${l.title}`,
+    '',
+    '',
+  ].join('\n');
+  writeFile(path.join('public', `${l.slug}.md`), header + toMarkdown(l.body, 'mdx', l.outRel));
 }
 
 // ---------- 7. llms.txt, versions.json, links.json ----------
-const entry = (p) => `- [${p.data.title}](${mdUrl(p.slug)})${p.data.description ? `: ${p.data.description}` : ""}`;
-const llms = [`# ${manifest.site.title}`, ""];
+const entry = (p) => `- [${p.data.title}](${mdUrl(p.slug)})${p.data.description ? `: ${p.data.description}` : ''}`;
+const llms = [`# ${manifest.site.title}`, ''];
 if (PREVIEW) {
   const rel = local[0];
-  llms.push(`> Preview of ${rel.title} from ${rel.repo} (${rel.ref}). Only this docset is built here; the rest is at ${SITE}/llms.txt.`, "", ...rel.pages.map(entry), "");
+  llms.push(
+    `> Preview of ${rel.title} from ${rel.repo} (${rel.ref}). Only this docset is built here; the rest is at ${SITE}/llms.txt.`,
+    '',
+    ...rel.pages.map(entry),
+    '',
+  );
 } else {
-  llms.push("> Each section lists the latest release of one docset; other versions follow it. Every page is also available as Markdown at its URL plus .md.", "");
+  llms.push(
+    '> Each section lists the latest release of one docset; other versions follow it. Every page is also available as Markdown at its URL plus .md.',
+    '',
+  );
   for (const t of manifest.topics) {
-    llms.push(`## ${t.label}`, "");
+    llms.push(`## ${t.label}`, '');
     for (const id of t.sources) {
       const latest = latestOf(id);
-      llms.push(`### ${latest.title} ${latest.version}`, "", ...latest.pages.map(entry), "");
+      llms.push(`### ${latest.title} ${latest.version}`, '', ...latest.pages.map(entry), '');
       const others = releasesOf[id].filter((r) => r !== latest);
-      if (others.length) llms.push(`Other versions: ${others.map((r) => `[${r.version}](${BASE}${r.prefix}/llms.txt)`).join(", ")}`, "");
+      if (others.length)
+        llms.push(`Other versions: ${others.map((r) => `[${r.version}](${BASE}${r.prefix}/llms.txt)`).join(', ')}`, '');
     }
   }
 }
-writeFile("public/llms.txt", llms.join("\n"));
-for (const rel of local) writeFile(path.join("public", rel.prefix, "llms.txt"), [`# ${rel.title} ${rel.version}`, "", ...rel.pages.map(entry), ""].join("\n"));
+writeFile('public/llms.txt', llms.join('\n'));
+for (const rel of local)
+  writeFile(
+    path.join('public', rel.prefix, 'llms.txt'),
+    [`# ${rel.title} ${rel.version}`, '', ...rel.pages.map(entry), ''].join('\n'),
+  );
 
 // Alias table for the host: /<mount>/latest/<page> -> /<mount>/<newest>/<page>.
 const hostIds = PREVIEW ? [PREVIEW] : Object.keys(docsets);
 writeFile(
-  "public/versions.json",
+  'public/versions.json',
   JSON.stringify(
     {
       base: BASE,
-      home: PREVIEW ? url(docsets[PREVIEW].versions.find((v) => !v.remote).first) : url(latestOf(manifest.topics[0].sources[0]).prefix),
+      home: PREVIEW
+        ? url(docsets[PREVIEW].versions.find((v) => !v.remote).first)
+        : url(latestOf(manifest.topics[0].sources[0]).prefix),
       docsets: Object.fromEntries(
         hostIds.map((id) => {
           const d = docsets[id];
           const vs = d.versions.filter((v) => !v.remote);
-          return [id, { mount: d.mount, latest: PREVIEW ? vs[0].name : d.latest, versions: vs.map((v) => ({ name: v.name, prefix: v.prefix, first: v.first, pages: v.pages, redirects: v.redirects })) }];
+          return [
+            id,
+            {
+              mount: d.mount,
+              latest: PREVIEW ? vs[0].name : d.latest,
+              versions: vs.map((v) => ({
+                name: v.name,
+                prefix: v.prefix,
+                first: v.first,
+                pages: v.pages,
+                redirects: v.redirects,
+              })),
+            },
+          ];
         }),
       ),
     },
@@ -600,7 +818,7 @@ writeFile(
 // Public link index: all a preview build needs to know about the other repos.
 if (!PREVIEW) {
   writeFile(
-    "public/links.json",
+    'public/links.json',
     JSON.stringify(
       {
         title: manifest.site.title,
@@ -611,9 +829,20 @@ if (!PREVIEW) {
           Object.entries(docsets).map(([id, d]) => [
             id,
             {
-              title: d.title, description: d.description, mount: d.mount, repo: d.repo, path: d.path, latest: d.latest,
+              title: d.title,
+              description: d.description,
+              mount: d.mount,
+              repo: d.repo,
+              path: d.path,
+              latest: d.latest,
               versions: releasesOf[id].map((rel) => ({
-                name: rel.version, ref: rel.ref, sha: rel.sha, dev: rel.dev, prefix: rel.prefix, first: firstOf(rel), redirects: rel.redirects,
+                name: rel.version,
+                ref: rel.ref,
+                sha: rel.sha,
+                dev: rel.dev,
+                prefix: rel.prefix,
+                first: firstOf(rel),
+                redirects: rel.redirects,
                 pages: Object.fromEntries(rel.pages.map((p) => [p.key, { title: p.data.title, anchors: p.anchors }])),
               })),
             },
@@ -639,19 +868,32 @@ if (PREVIEW) {
     if (l.to.version !== devName && l.to.version !== d.latest) continue;
     const key = rel.redirects[l.to.key] ?? l.to.key;
     const page = byKey.get(key);
-    const from = `${l.from.docset}@${l.from.version}/${l.from.page || "index"}`;
-    if (!page) errors.push(`inbound: ${from} links to "${l.to.key}", which this change removes. Keep the page or add it to redirects: in docset.yml`);
-    else if (l.to.anchor && !page.anchors.includes(l.to.anchor)) errors.push(`inbound: ${from} links to "${l.to.key}#${l.to.anchor}", and that heading no longer exists`);
+    const from = `${l.from.docset}@${l.from.version}/${l.from.page || 'index'}`;
+    if (!page)
+      errors.push(
+        `inbound: ${from} links to "${l.to.key}", which this change removes. Keep the page or add it to redirects: in docset.yml`,
+      );
+    else if (l.to.anchor && !page.anchors.includes(l.to.anchor))
+      errors.push(`inbound: ${from} links to "${l.to.key}#${l.to.anchor}", and that heading no longer exists`);
   }
 }
 
 // ---------- report ----------
-console.log(`assembled ${pages.length} pages from ${local.length} versions -> ${path.relative(process.cwd(), out)} (base ${BASE})`);
-for (const rel of local) console.log(`  ${rel.name.padEnd(22)} ${rel.format.padEnd(7)} ${String(rel.sha).slice(0, 12)}  ${url(rel.prefix)}`);
-if (warnings.length) console.warn(`\n${warnings.length} warning(s) (fetched versions never block the build; fix them in their repo):\n- ` + warnings.join("\n- "));
+console.log(
+  `assembled ${pages.length} pages from ${local.length} versions -> ${path.relative(process.cwd(), out)} (base ${BASE})`,
+);
+for (const rel of local)
+  console.log(`  ${rel.name.padEnd(22)} ${rel.format.padEnd(7)} ${String(rel.sha).slice(0, 12)}  ${url(rel.prefix)}`);
+if (warnings.length)
+  console.warn(
+    `\n${warnings.length} warning(s) (fetched versions never block the build; fix them in their repo):\n- ` +
+      warnings.join('\n- '),
+  );
 // In GitHub Actions, also show each warning as an annotation on the run.
-if (process.env.GITHUB_ACTIONS) for (const w of warnings) console.log(`::warning title=Docs::${w.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A")}`);
+if (process.env.GITHUB_ACTIONS)
+  for (const w of warnings)
+    console.log(`::warning title=Docs::${w.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')}`);
 if (errors.length) {
-  console.error(`\n${errors.length} error(s):\n- ` + errors.join("\n- "));
+  console.error(`\n${errors.length} error(s):\n- ${errors.join('\n- ')}`);
   process.exit(1);
 }
