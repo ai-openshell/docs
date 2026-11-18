@@ -59,7 +59,7 @@ jobs:
           echo '|---|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
           node -e 'for (const [k, v] of Object.entries(require("./build/assembled/sources.lock.json"))) console.log(`| ${k} | ${v.repo}@${v.ref} | ${v.sha.slice(0, 12)} | ${v.format} |`)' >> "$GITHUB_STEP_SUMMARY"
           cp build/assembled/sources.lock.json site/dist/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request'
         with:
           path: site/dist
