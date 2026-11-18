@@ -1,0 +1,45 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+# Contributing to the OpenShell docs site
+
+This repository holds the site build, theme, and navigation. Page content lives
+in each source repository; change it there. See the [README](README.md) for
+how the build works.
+
+## Setup
+
+The site needs Node.js, pinned in [`mise.toml`](mise.toml), and git. Install
+[mise](https://mise.jdx.dev/), then:
+
+```shell
+mise install
+mise run install
+```
+
+| Task                | What it does                                             |
+| ------------------- | -------------------------------------------------------- |
+| `mise run build`    | Fetch every source and build the site into `site/dist`   |
+| `mise run serve`    | Serve the built site at <http://127.0.0.1:4410/docs/>    |
+| `mise run assemble` | Fetch and assemble the sources without building the site |
+| `mise run test` | Run the assembler's unit tests |
+| `mise run lint` | Check formatting and lint with [Biome](https://biomejs.dev/) |
+| `mise run format` | Format the code and apply safe lint fixes |
+| `mise run typecheck` | Assemble the sources and type-check the site with `astro check` |
+
+To build against a local checkout instead of a source's `dev` branch, run
+`node assembler/assemble.mjs --base /docs/ --local core=../OpenShell` before
+`BASE_PATH=/docs/ npm run site`. Broken links in a local checkout fail the
+build; in fetched versions they only warn.
+
+## Commits and pull requests
+
+- Use [Conventional Commits](https://www.conventionalcommits.org/):
+  `<type>(<scope>): <description>`.
+- Sign off every commit (`git commit --signoff`) for the [Developer Certificate
+  of Origin](https://developercertificate.org/).
+- Every change goes through a pull request. Pull requests are squash-merged.
+- Every file needs the license line `SPDX-License-Identifier: Apache-2.0` in
+  a comment in its first 10 lines; the `SPDX` workflow checks it. In `.mdx`
+  and `.astro` files, put it in the front matter. A file that can't hold a
+  comment, such as JSON or an image, gets a `<file>.license` file containing
+  the line instead.

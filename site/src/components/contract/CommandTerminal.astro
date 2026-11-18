@@ -1,0 +1,8 @@
+---
+// SPDX-License-Identifier: Apache-2.0
+import { Code } from '@astrojs/starlight/components';
+
+const { command } = Astro.props as { command: string };
+---
+
+<div class="os-terminal"><Code code={command} lang="shell" frame="terminal" /></div>

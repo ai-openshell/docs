@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+
+title: Native docs
+description: A docset.yml docset.
+redirects:
+  old-guide: guides/setup
+nav:
+  - page: index.mdx
+  - section: Guides
+    items:
+      - page: guides/setup.mdx
+        label: Set up
+      - page: guides/missing.mdx
+  - link: Changelog
+    href: https://example.com/changelog

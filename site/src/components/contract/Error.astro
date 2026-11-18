@@ -1,0 +1,8 @@
+---
+// SPDX-License-Identifier: Apache-2.0
+import Callout from './Callout.astro';
+
+const { title } = Astro.props;
+---
+
+<Callout kind="error" type="danger" title={title}><slot /></Callout>
