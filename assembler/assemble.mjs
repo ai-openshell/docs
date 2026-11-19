@@ -358,6 +358,8 @@ for (const id of allIds) {
 
 // Topic overview pages (/sdks/, /drivers/): an optional hand-written intro
 // from the site repo, then one card per docset linking its latest release.
+// A topic gets one when it has a description or several docsets; otherwise
+// its tab goes straight to its only docset (Platform).
 const landings = [];
 function introFor(t) {
   if (!t.intro) return '';
@@ -381,7 +383,7 @@ function introFor(t) {
   });
 }
 for (const t of manifest.topics) {
-  if (t.sources.length < 2) continue;
+  if (!t.description && t.sources.length < 2) continue;
   const intro = introFor(t);
   const cards = t.sources.map((id) => {
     const d = docsets[id];

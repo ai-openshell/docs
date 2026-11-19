@@ -1,7 +1,7 @@
 ---
 // SPDX-License-Identifier: Apache-2.0
-// Header: wordmark / search / theme, then topic tabs, then (in topics with
-// several docsets) sub-tabs for the topic's overview and each docset.
+// Header: wordmark / search / theme, then topic tabs, then (in topics with an
+// overview page) sub-tabs for the overview and each docset.
 // Tab and sub-tab links come from src/routeData.ts and follow the current
 // page's version context.
 import Search from '@astrojs/starlight/components/Search.astro';
@@ -41,7 +41,7 @@ const subtabs = ds
       <a href={t.href} class="os-tab" aria-current={t.isCurrent ? 'true' : undefined}>{t.label}</a>
     ))}
   </nav>
-  {ds && ds.items.length > 1 && (
+  {ds?.topic.landing && (
     <div class="os-subtabs print:hidden">
       <nav class="os-subtabs__links" aria-label={ds.topic.label}>
         {subtabs.map((t) => (
