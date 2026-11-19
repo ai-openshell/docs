@@ -9,6 +9,8 @@
 #
 # Every source has its own versions, newest first. The first one is "latest".
 # `dev` (optional) is a branch built as an extra, unreleased version.
+# The Release sync workflow (scripts/release-sync.mjs) proposes new release
+# tags in a pull request; keep each `versions` list in block style.
 #
 # Pages are published at /<mount>/<version>/<page>; /<mount>/latest/<page>
 # redirects to the newest release. Core is mounted at the root (/0.1.8/...).

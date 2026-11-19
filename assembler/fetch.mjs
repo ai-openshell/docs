@@ -28,6 +28,15 @@ export async function resolveRef(repo, ref) {
   return sha;
 }
 
+/** Every tag name in the repo (refs/tags/*), without fetching anything. */
+export async function listTags(repo) {
+  const out = await git(['ls-remote', '--tags', '--refs', urlOf(repo)]);
+  return out
+    .split('\n')
+    .filter(Boolean)
+    .map((l) => l.split('\t')[1].replace(/^refs\/tags\//, ''));
+}
+
 // Two refs can name the same commit (a tag on main); fetch it once.
 const inflight = new Map();
 

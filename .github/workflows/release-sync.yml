@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Propose new source releases. Polls the tags of every repo in sources.yml
+# (scripts/release-sync.mjs) and keeps one pull request, from the release-sync
+# branch, that adds the new versions. Source repos don't need to trigger
+# anything.
+#
+# Each run rebuilds the branch from main and force-pushes it only when the
+# proposed sources.yml changes, so the open pull request is updated in place.
+# When main already lists every release, an open proposal is closed.
+#
+# The pull request is opened with a GitHub App token, not GITHUB_TOKEN, so the
+# Site workflow runs on it. The App's credentials are DOCS_BOT_CLIENT_ID and
+# DOCS_BOT_PRIVATE_KEY in the docs-bot environment, which only main can
+# deploy to, so a pushed branch can't mint a bot token.
+name: Release sync
+
+on:
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    environment: docs-bot
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BRANCH: release-sync
+    steps:
+      - id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ secrets.DOCS_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.DOCS_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+      - run: npm ci
+      - name: Find new releases
+        run: node scripts/release-sync.mjs --json "$RUNNER_TEMP/release-sync.json"
+      - name: Open or update the pull request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          OUT: ${{ runner.temp }}/release-sync.json
+        run: |
+          set -euo pipefail
+          pr=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ "$(jq '.added | length' "$OUT")" -eq 0 ]; then
+            if [ -n "$pr" ]; then
+              gh pr close "$pr" --delete-branch --comment "main lists every release in this proposal already."
+            fi
+            exit 0
+          fi
+          title=$(jq -r .title "$OUT")
+          jq -r .body "$OUT" >"$RUNNER_TEMP/body.md"
+          echo "$title" >>"$GITHUB_STEP_SUMMARY"
+
+          # A maintainer closed this exact proposal: don't reopen it. The next
+          # release changes the title and opens a new one.
+          # shellcheck disable=SC2016 # $ENV is jq, not shell
+          closed=$(TITLE=$title gh pr list --head "$BRANCH" --state closed --json number,title,mergedAt \
+            --jq '[.[] | select(.title == $ENV.TITLE and .mergedAt == null)][0].number // empty')
+          if [ -z "$pr" ] && [ -n "$closed" ]; then
+            echo "#$closed proposed this and was closed; skipping."
+            exit 0
+          fi
+
+          # Leave an open proposal alone (and its checks unrerun) when it
+          # proposes the same sources.yml already.
+          if [ -n "$pr" ] && git fetch --quiet --depth=1 origin "$BRANCH" &&
+            git diff --quiet FETCH_HEAD -- sources.yml; then
+            echo "#$pr proposes these versions already."
+            exit 0
+          fi
+
+          id=$(gh api "users/${APP_SLUG}[bot]" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${id}+${APP_SLUG}[bot]@users.noreply.github.com"
+          git switch --quiet -c "$BRANCH"
+          git commit --quiet --signoff -m "$title" -m "Add the new release tags to sources.yml." -- sources.yml
+          git push --quiet --force origin "$BRANCH"
+
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --base main --head "$BRANCH" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          fi
