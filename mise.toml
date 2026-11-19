@@ -14,6 +14,10 @@ run = "npm ci"
 description = "Fetch every source in sources.yml and assemble the pages"
 run = "node assembler/assemble.mjs --base /docs/"
 
+[tasks.release-sync]
+description = "Add new release tags of each source to sources.yml (pass -- --dry-run to preview)"
+run = "node scripts/release-sync.mjs"
+
 [tasks.build]
 description = "Assemble and build the site into site/dist"
 depends = ["assemble"]
