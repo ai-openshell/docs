@@ -160,6 +160,11 @@ body {
   color: var(--os-fg);
   border-color: var(--sl-color-gray-4);
 }
+.os-version__selected {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
 .os-version__current {
   font-family: var(--os-font-mono);
   color: var(--os-fg);
