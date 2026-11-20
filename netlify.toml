@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Netlify build settings. These override the settings in the Netlify UI.
-# `npm run build` fetches the sources and assembles the pages before
-# building the site; `npm run site` alone expects them to be assembled already.
-# Netlify serves the site at the root, so BASE_PATH stays unset.
+# `npm run build` fetches the sources and builds the docs under /docs/;
+# `npm run website` then puts the landing page at / and the docs at /docs/.
 
 [build]
-command = "npm run build"
-publish = "site/dist"
+command = "npm run build && npm run website"
+publish = "build/website"
+
+[build.environment]
+BASE_PATH = "/docs/"
