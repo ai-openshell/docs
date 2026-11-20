@@ -34,7 +34,7 @@ sources:
     title: OpenShell
     description: The safe, private runtime for autonomous AI agents.
     mount: ""
-    repo: NVIDIA/OpenShell
+    repo: ai-openshell/openshell
     path: docs
     dev: { ref: main }
     versions:
