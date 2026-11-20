@@ -26,8 +26,8 @@ site:
   url: https://ai-openshell.github.io/docs
 
 topics:
-  - id: platform
-    label: Platform
+  - id: core
+    label: Core
     sources: [core]
   - id: sdks
     label: SDKs

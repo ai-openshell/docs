@@ -46,7 +46,7 @@ function sourcesYml() {
   const file = path.join(tmp, 'sources.yml');
   fs.writeFileSync(
     file,
-    `site:\n  title: Test\ntopics:\n  - id: platform\n    label: Platform\n    sources: [alpha]\n  - id: libs\n    label: Libraries\n    description: Client libraries.\n    sources: [beta]\nsources:\n${source('alpha', '')}${source('beta', 'beta')}`,
+    `site:\n  title: Test\ntopics:\n  - id: core\n    label: Core\n    sources: [alpha]\n  - id: libs\n    label: Libraries\n    description: Client libraries.\n    sources: [beta]\nsources:\n${source('alpha', '')}${source('beta', 'beta')}`,
   );
   return file;
 }
@@ -107,7 +107,7 @@ describe('full build from fetched sources', () => {
     assert.deepEqual(
       nav.topics.map((t) => [t.id, t.landing]),
       [
-        ['platform', undefined],
+        ['core', undefined],
         ['libs', 'libs'],
       ],
     );
