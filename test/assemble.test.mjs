@@ -46,7 +46,7 @@ function sourcesYml() {
   const file = path.join(tmp, 'sources.yml');
   fs.writeFileSync(
     file,
-    `site:\n  title: Test\ntopics:\n  - id: platform\n    label: Platform\n    sources: [alpha]\n  - id: libs\n    label: Libraries\n    sources: [beta]\nsources:\n${source('alpha', '')}${source('beta', 'beta')}`,
+    `site:\n  title: Test\ntopics:\n  - id: core\n    label: Core\n    sources: [alpha]\n  - id: libs\n    label: Libraries\n    description: Client libraries.\n    sources: [beta]\nsources:\n${source('alpha', '')}${source('beta', 'beta')}`,
   );
   return file;
 }
@@ -100,6 +100,18 @@ describe('full build from fetched sources', () => {
       ['beta/dev', 'beta/1.0'],
     );
     assert.match(build.read('content/1.0/guide.mdx'), /## Setup/);
+  });
+
+  test('a topic with a description gets an overview page, even with one docset', () => {
+    const nav = build.json('nav.json');
+    assert.deepEqual(
+      nav.topics.map((t) => [t.id, t.landing]),
+      [
+        ['core', undefined],
+        ['libs', 'libs'],
+      ],
+    );
+    assert.match(build.read('content/libs/index.mdx'), /<Card title="Beta"/);
   });
 
   test('rewrites root-relative links within the release and follows redirects', () => {
