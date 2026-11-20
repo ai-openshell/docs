@@ -18,8 +18,11 @@ owns the build, the theme, and the navigation.
 which tags to publish. The build fetches only the docs directory at each tag or
 branch, reads it in its own format (Fern `index.yml`, mdBook `SUMMARY.md`, or
 `docset.yml`), checks every link, and builds the site with
-[Starlight](https://starlight.astro.build/). Each version is published at its
-own path, such as `/0.1.8/about/overview/` or `/sdks/go/dev/`.
+[Starlight](https://starlight.astro.build/). The newest release of each
+repository is published without a version in the URL, such as
+`/about/overview/` or `/sdks/go/`, so links always show the current docs. Other
+versions have their own path, such as `/0.1.8/about/overview/` or
+`/sdks/go/dev/`.
 
 Broken links in fetched versions are warnings, so one repository can't block
 the site. To check a change to a repository's docs, build with `--local` (see

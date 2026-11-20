@@ -4,6 +4,7 @@
 // its own versions, so a driver page lists driver versions. Sits at the top
 // of the sidebar.
 const picker = Astro.locals.osVersion?.picker;
+const isLatest = picker?.options.some((o) => o.current && o.latest);
 ---
 
 {picker && (
@@ -11,7 +12,10 @@ const picker = Astro.locals.osVersion?.picker;
   <span class="os-version-field__label" id="os-version-label">Version</span>
   <details class="os-version" aria-labelledby="os-version-label">
     <summary>
-      <span class="os-version__current">{picker.current}</span>
+      <span class="os-version__selected">
+        <span class="os-version__current">{picker.current}</span>
+        {isLatest && <span class="os-version__latest">latest</span>}
+      </span>
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
     </summary>
     <ul class="os-version__menu">

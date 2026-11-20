@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
 // Write static redirect pages for hosts without redirect rules (GitHub Pages).
-// Reads <dist>/versions.json (written by the assembler):
-//   /                      -> newest OpenShell release
-//   /<mount>/              -> the docset's latest release
-//   /<mount>/latest/<page> -> /<mount>/<latest>/<page>
-//   /<mount>/<version>/    -> that version's first page, when it has no home page
+// The latest release of each docset is published at /<mount>/<page>, with no
+// version segment. Reads <dist>/versions.json (written by the assembler):
+//   /                        -> newest OpenShell release, when it has no home page
+//   /<mount>/latest/<page>   -> /<mount>/<page>
+//   /<mount>/<latest>/<page> -> /<mount>/<page>, so links pinned to the newest
+//                               release keep working until the next one ships
+//   /<mount>/<version>/      -> that version's first page, when it has no home page
 //   /<prefix>/<old page>   -> /<prefix>/<new page>, from `redirects:` in docset.yml
 //                             (and Fern section URLs without an overview page)
 // Existing pages are never overwritten. A production host would use edge
@@ -36,9 +38,10 @@ const redirect = (from, to) => {
 redirect('', home);
 for (const d of Object.values(docsets)) {
   const latest = d.versions.find((v) => v.name === d.latest);
-  if (d.mount) redirect(d.mount, href(latest.first));
-  redirect(join(d.mount, 'latest'), href(latest.pages.includes('') ? latest.prefix : latest.first));
-  for (const key of latest.pages) if (key) redirect(join(d.mount, 'latest', key), href(join(latest.prefix, key)));
+  for (const alias of ['latest', latest.name]) {
+    redirect(join(d.mount, alias), href(latest.pages.includes('') ? latest.prefix : latest.first));
+    for (const key of latest.pages) if (key) redirect(join(d.mount, alias, key), href(join(latest.prefix, key)));
+  }
   for (const v of d.versions) {
     if (!v.pages.includes('')) redirect(v.prefix, href(v.first));
     for (const [from, to] of Object.entries(v.redirects ?? {}))
