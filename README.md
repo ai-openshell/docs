@@ -32,7 +32,7 @@ previews for source repositories are tracked in
 
 To publish a new release, add its tag to `sources.yml`.
 
-The published website serves a small landing page from [`landing/`](landing/)
+The published website serves a small landing page from [`www/`](www/)
 at `/` and the docs at `/docs/`. [`scripts/website.mjs`](scripts/website.mjs)
 combines the two after the docs build.
 

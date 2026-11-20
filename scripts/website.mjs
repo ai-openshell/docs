@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
-// Assemble the website: the landing page at / and the docs build at /docs/.
+// Assemble the website: the files in www/ (the landing page) at / and the
+// docs build at /docs/.
 // The docs build must use BASE_PATH=/docs/ so its links resolve under /docs/.
 // Usage: node scripts/website.mjs site/dist build/website
 import fs from 'node:fs';
@@ -17,7 +18,7 @@ if (base !== `/${MOUNT}/`) {
 }
 
 fs.rmSync(out, { recursive: true, force: true });
-fs.cpSync(path.join(repo, 'landing'), out, { recursive: true });
+fs.cpSync(path.join(repo, 'www'), out, { recursive: true });
 fs.copyFileSync(path.join(repo, 'theme/tokens.css'), path.join(out, 'tokens.css'));
 for (const f of ['favicon.svg', 'apple-touch-icon.png', 'cncf'])
   fs.cpSync(path.join(repo, 'site/static', f), path.join(out, f), { recursive: true });

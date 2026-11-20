@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* Landing page styles. Colors and fonts come from theme/tokens.css (--os-*);
+/* Landing page styles (www/index.html). Colors and fonts come from theme/tokens.css (--os-*);
    text, card, and code colors follow site/src/styles/theme.css so the page
    matches the docs. */
 :root {
