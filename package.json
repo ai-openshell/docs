@@ -7,6 +7,7 @@
     "sync": "node site/scripts/sync.mjs",
     "build": "npm run assemble && npm run site",
     "site": "npm run sync && astro build --root site && node scripts/redirects.mjs site/dist",
+    "website": "node scripts/website.mjs site/dist build/website",
     "dev": "npm run sync && astro dev --root site",
     "lint": "biome ci --error-on-warnings .",
     "format": "biome check --write .",

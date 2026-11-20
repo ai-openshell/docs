@@ -1,0 +1,112 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- The landing page at /. scripts/website.mjs publishes it next to the docs build at /docs/. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenShell</title>
+    <meta name="description" content="The safe, private runtime for autonomous AI agents." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="/tokens.css" />
+    <link rel="stylesheet" href="/landing.css" />
+    <script>
+      // Follow the theme chosen in the docs (Starlight stores it), else the system setting.
+      (() => {
+        let t = '';
+        try {
+          t = localStorage.getItem('starlight-theme') ?? '';
+        } catch {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="top">
+      <a href="/" class="wordmark" translate="no">
+        <svg viewBox="14 7 72 87" aria-hidden="true">
+          <path d="M50 9 L84 23 V51 C84 72 69 86 50 92 C31 86 16 72 16 51 V23 Z" fill="#76B900" />
+          <g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M37 41 L49 50 L37 59" />
+            <path d="M55 59 H67" />
+          </g>
+        </svg>
+        <span>OpenShell</span>
+      </a>
+      <nav aria-label="Site">
+        <a href="/docs/">Docs</a>
+        <a href="https://github.com/ai-openshell/openshell">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>The safe, private runtime for autonomous AI agents</h1>
+        <p class="lede">
+          Agents are most useful when they can read files, install packages, call APIs, and use credentials. OpenShell
+          gives them that without unrestricted access to your data, secrets, or network. You declare what each agent can
+          touch in a policy, and OpenShell enforces it.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="/docs/">Read the docs</a>
+          <a class="button" href="https://github.com/ai-openshell/openshell">View on GitHub</a>
+        </div>
+      </section>
+
+      <section class="install" aria-labelledby="install-title">
+        <h2 id="install-title">Get started</h2>
+        <pre><code><span class="prompt">$</span> curl -LsSf https://raw.githubusercontent.com/ai-openshell/openshell/main/install.sh | sh
+<span class="prompt">$</span> openshell sandbox create --name demo</code></pre>
+        <p>
+          The installer sets up the CLI and a local gateway. You need Linux, macOS on Apple Silicon, or Windows with WSL 2,
+          plus Docker, Podman, or host virtualization.
+        </p>
+      </section>
+
+      <section class="features" aria-label="How it works">
+        <article>
+          <h2>Kernel-level enforcement</h2>
+          <p>
+            Each agent runs in an isolated sandbox. Kernel controls confine which files it can access and which system
+            calls it can make.
+          </p>
+        </article>
+        <article>
+          <h2>Policy on every connection</h2>
+          <p>
+            Every network connection passes a policy check before it leaves the sandbox. Agents never see real
+            credentials; OpenShell adds them only to requests bound for approved endpoints.
+          </p>
+        </article>
+        <article>
+          <h2>Verified policy changes</h2>
+          <p>
+            Before a policy change is approved, formal verification flags risky new access it would grant, so those
+            changes wait for human review.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="cncf">
+      <p>We are a <a href="https://www.cncf.io/">Cloud Native Computing Foundation</a> sandbox project.</p>
+      <a href="https://www.cncf.io/" class="cncf-logo">
+        <img src="/cncf/cncf-color.svg" alt="Cloud Native Computing Foundation" class="light-only" width="200" height="38" />
+        <img src="/cncf/cncf-white.svg" alt="Cloud Native Computing Foundation" class="dark-only" width="200" height="38" />
+      </a>
+      <p class="legal">
+        Copyright OpenShell a Series of LF Projects, LLC<br />
+        For website terms of use, trademark policy and other project policies please see
+        <a href="https://lfprojects.org/policies/">lfprojects.org/policies/</a>.
+      </p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,188 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+/* Landing page styles. Colors and fonts come from theme/tokens.css (--os-*). */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--os-bg);
+  color: var(--os-fg);
+  font-family: var(--os-font-sans);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--os-accent-text);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--os-header-h);
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--os-border);
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--os-fg);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  text-decoration: none;
+}
+.wordmark svg {
+  height: 1.5rem;
+  width: auto;
+}
+
+.top nav {
+  display: flex;
+  gap: 1.25rem;
+}
+.top nav a {
+  color: var(--os-muted);
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+.top nav a:hover {
+  color: var(--os-fg);
+}
+
+main {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.hero {
+  padding: 5rem 0 3rem;
+  max-width: 46rem;
+}
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.lede {
+  margin: 1.25rem 0 0;
+  color: var(--os-muted);
+  font-size: 1.125rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.button {
+  display: inline-block;
+  padding: 0.625rem 1.125rem;
+  border: 1px solid var(--os-border);
+  border-radius: var(--os-radius);
+  color: var(--os-fg);
+  font-weight: 500;
+  text-decoration: none;
+}
+.button:hover {
+  border-color: var(--os-muted);
+}
+.button.primary {
+  background: var(--os-accent);
+  border-color: var(--os-accent);
+  color: #0d0f0b;
+}
+.button.primary:hover {
+  filter: brightness(1.08);
+}
+
+.install h2,
+.features h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+}
+.install pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  background: var(--os-surface);
+  border: 1px solid var(--os-border);
+  border-radius: var(--os-radius);
+  font-family: var(--os-font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+.prompt {
+  color: var(--os-muted);
+  user-select: none;
+}
+.install p {
+  margin: 0.75rem 0 0;
+  color: var(--os-muted);
+  font-size: 0.9375rem;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+  padding: 3rem 0 4rem;
+}
+.features article {
+  padding: 1.25rem;
+  background: var(--os-surface);
+  border: 1px solid var(--os-border);
+  border-top: 2px solid var(--os-accent);
+  border-radius: var(--os-radius);
+}
+.features p {
+  margin: 0;
+  color: var(--os-muted);
+  font-size: 0.9375rem;
+}
+
+.cncf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1.5rem 2.5rem;
+  border-top: 1px solid var(--os-border);
+  color: var(--os-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+.cncf p {
+  margin: 0;
+}
+.cncf a {
+  color: inherit;
+}
+.cncf a:hover {
+  color: var(--os-fg);
+}
+.cncf-logo img {
+  display: block;
+  height: 2rem;
+  width: auto;
+}
+.cncf-logo .dark-only,
+:root[data-theme="dark"] .cncf-logo .light-only {
+  display: none;
+}
+:root[data-theme="dark"] .cncf-logo .dark-only {
+  display: block;
+}

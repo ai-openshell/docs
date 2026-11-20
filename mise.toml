@@ -20,6 +20,15 @@ depends = ["assemble"]
 env = { BASE_PATH = "/docs/" }
 run = "npm run site"
 
+[tasks.website]
+description = "Build the site, then add the landing page at / with the docs at /docs/"
+depends = ["build"]
+run = "npm run website"
+
+[tasks.serve-website]
+description = "Serve the website at http://127.0.0.1:4410/"
+run = "node scripts/serve.mjs build/website 4410 /"
+
 [tasks.test]
 description = "Run the unit tests for the assembler"
 run = "npm test"
