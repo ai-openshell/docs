@@ -356,7 +356,7 @@ h2 {
     border-color 120ms,
     box-shadow 120ms;
 }
-.card:hover {
+a.card:hover {
   border-color: color-mix(in srgb, var(--os-accent) 70%, var(--os-border));
   box-shadow: 0 6px 20px -12px color-mix(in srgb, var(--os-accent) 60%, transparent);
 }
@@ -376,9 +376,13 @@ h2 {
     transform 120ms,
     color 120ms;
 }
-.card:hover .arrow {
+a.card:hover .arrow {
   color: var(--os-accent-text);
   transform: translateX(2px);
+}
+.card-body code {
+  font-family: var(--os-font-mono);
+  font-size: 0.8125rem;
 }
 .card-body {
   color: var(--os-muted);
