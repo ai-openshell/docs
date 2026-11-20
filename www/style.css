@@ -164,28 +164,9 @@ h2 {
 .hero {
   padding: 5.5rem 0 3rem;
 }
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--os-accent) 45%, var(--os-border));
-  border-radius: 999px;
-  background: var(--os-accent-soft);
-  color: var(--os-accent-text);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  text-decoration: none;
-}
-.eyebrow .dot {
-  width: 0.4375rem;
-  height: 0.4375rem;
-  border-radius: 50%;
-  background: var(--os-accent);
-}
 .hero h1 {
   max-width: 48rem;
-  margin: 1.25rem 0 0;
+  margin: 0;
   font-size: clamp(2.25rem, 5.5vw, 3.5rem);
   line-height: 1.08;
   letter-spacing: -0.035em;
