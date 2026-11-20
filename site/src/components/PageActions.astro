@@ -1,10 +1,10 @@
 ---
 // SPDX-License-Identifier: Apache-2.0
-import { pageFor } from '../versioning';
+import { markdownHref, pageFor } from '../versioning';
 
 // Page actions: Copy page / View as Markdown / Open in Claude / Open in ChatGPT, all driven by /<slug>.md.
 // The Markdown copy sits at the page's path plus .md (base path included).
-const md = `${Astro.url.pathname.replace(/\/$/, '')}.md`;
+const md = markdownHref(Astro.url.pathname);
 // The page's source on GitHub, from the assembler (absent when there's nowhere to edit it).
 const edit = pageFor(Astro.locals.starlightRoute.id)?.edit;
 ---

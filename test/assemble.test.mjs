@@ -92,24 +92,25 @@ describe('full build from fetched sources', () => {
     for (const v of Object.values(lock)) assert.match(v.sha, /^[0-9a-f]{40}$/);
   });
 
-  test('publishes each version under its mount, with the newest release as latest', () => {
+  test('publishes the newest release at its mount and other versions under it', () => {
     const nav = build.json('nav.json');
     assert.equal(nav.docsets.alpha.latest, '1.0');
     assert.deepEqual(
       nav.docsets.beta.versions.map((v) => v.prefix),
-      ['beta/dev', 'beta/1.0'],
+      ['beta/dev', 'beta'],
     );
-    assert.match(build.read('content/1.0/guide.mdx'), /## Setup/);
+    assert.match(build.read('content/guide.mdx'), /## Setup/);
+    assert.match(build.read('content/dev/guide.mdx'), /## Setup/);
   });
 
   test('rewrites root-relative links within the release and follows redirects', () => {
-    const page = build.read('content/1.0/index.mdx');
-    assert.match(page, /\]\(\/docs\/1\.0\/guide\/#setup\)/);
-    assert.match(page, /\[old guide\]\(\/docs\/1\.0\/guide\/\)/);
+    const page = build.read('content/index.mdx');
+    assert.match(page, /\]\(\/docs\/guide\/#setup\)/);
+    assert.match(page, /\[old guide\]\(\/docs\/guide\/\)/);
   });
 
   test('repo:// links go to the latest release, or to dev from a dev page', () => {
-    assert.match(build.read('content/1.0/index.mdx'), /\[beta\]\(\/docs\/beta\/1\.0\/intro\/\)/);
+    assert.match(build.read('content/index.mdx'), /\[beta\]\(\/docs\/beta\/intro\/\)/);
     assert.match(build.read('content/dev/index.mdx'), /\[beta\]\(\/docs\/beta\/dev\/intro\/\)/);
     assert.match(build.read('content/beta/dev/intro.mdx'), /\[alpha\]\(\/docs\/dev\/guide\/#setup\)/);
   });
@@ -123,14 +124,17 @@ describe('full build from fetched sources', () => {
   });
 
   test('writes a Markdown copy of every page and llms.txt', () => {
-    assert.match(build.read('public/1.0/guide.md'), /^# Guide$/m);
+    assert.match(build.read('public/guide.md'), /^# Guide$/m);
+    assert.match(build.read('public/index.md'), /^url: \/docs\/$/m);
     assert.match(build.read('public/dev/guide.md'), /development version/);
-    assert.match(build.read('public/llms.txt'), /### Alpha 1\.0/);
+    const llms = build.read('public/llms.txt');
+    assert.match(llms, /### Alpha 1\.0/);
+    assert.match(llms, /\[dev\]\(\/docs\/dev\/llms\.txt\)/);
   });
 
   test('writes the host alias table for /<mount>/latest/', () => {
     const versions = build.json('public/versions.json');
-    assert.equal(versions.home, '/docs/1.0/');
+    assert.equal(versions.home, '/docs/');
     assert.equal(versions.docsets.beta.latest, '1.0');
   });
 });

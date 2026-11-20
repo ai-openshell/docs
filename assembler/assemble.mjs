@@ -11,9 +11,10 @@
 //      (cached by commit in .cache/sources/). Nothing is copied into this repo.
 //   2. Reads each checkout in its own format (adapters.mjs): native
 //      docset.yml, Fern index.yml or mdBook SUMMARY.md.
-//   3. Publishes each (source, version) under /<mount>/<version>/, rewrites
-//      and checks every link, and writes the site inputs, Markdown for
-//      agents, llms.txt and the host's alias table.
+//   3. Publishes each source's latest release under /<mount>/ and every other
+//      version under /<mount>/<version>/, rewrites and checks every link, and
+//      writes the site inputs, Markdown for agents, llms.txt and the host's
+//      alias table.
 //
 // Links: root-relative links (/how-it-works/x) stay in their release.
 // repo://path links (core://about/installation) go to the target's latest
@@ -74,6 +75,7 @@ const manifest = YAML.parse(fs.readFileSync(path.resolve(args.sources ?? path.jo
 const allIds = Object.keys(manifest.sources);
 
 // One entry per (source, version). dev (if any) first, then releases newest first.
+// latest = the newest release; a docset with only a dev version uses dev.
 const wanted = [];
 for (const [id, src] of Object.entries(manifest.sources)) {
   if (src.dev) {
@@ -99,6 +101,8 @@ for (const [id, src] of Object.entries(manifest.sources)) {
       ref: v.ref,
       subdir: v.path ?? src.path,
     });
+  const own = wanted.filter((w) => w.id === id);
+  (own.find((w) => !w.dev) ?? own[0]).latest = true;
 }
 
 // ---------- 1. fetch ----------
@@ -149,6 +153,7 @@ function anchorsOf(body, ext) {
 const releases = [];
 const releasesOf = Object.fromEntries(allIds.map((id) => [id, []]));
 const pages = [];
+const bySlug = new Map();
 const strict = (rel) => !!(rel.local || rel.strict);
 const report = (rel, msg) => (strict(rel) ? errors : warnings).push(`${rel.name}: ${msg}`);
 for (const w of wanted) {
@@ -165,13 +170,16 @@ for (const w of wanted) {
     id: w.id,
     version: w.name,
     dev: w.dev,
+    latest: !!w.latest,
     local: !!w.local,
     ref: w.ref,
     sha: w.sha,
     repo: w.repo,
     path: w.subdir,
     mount: w.src.mount,
-    prefix: join(w.src.mount, w.name),
+    // The latest release has no version segment, so /<mount>/<page> always
+    // shows the newest docs without a redirect.
+    prefix: w.latest ? w.src.mount : join(w.src.mount, w.name),
     name,
     format: docs.format,
     title: docs.meta.title ?? w.src.title ?? w.id,
@@ -192,6 +200,14 @@ for (const w of wanted) {
     const ids = [];
     p.body = fernIds(p.body, ids);
     const page = { ...p, rel, slug: join(rel.prefix, p.key), anchors: [...anchorsOf(p.body, p.ext), ...ids] };
+    // The latest release shares /<mount>/ with the version directories, so a
+    // page there can take another version's URL (a page named "dev/...").
+    const taken = bySlug.get(page.slug);
+    if (taken) {
+      errors.push(`${name}: ${p.relPath} publishes at /${page.slug}, already used by ${taken.rel.name}`);
+      continue;
+    }
+    bySlug.set(page.slug, page);
     page.data.title ??= p.label ?? p.key;
     pages.push(page);
     rel.pages.push(page);
@@ -204,13 +220,6 @@ for (const w of wanted) {
   releases.push(rel);
   releasesOf[w.id].push(rel);
 }
-// latest = the newest release; a docset with only a dev version uses dev.
-for (const id of allIds) {
-  const first = releasesOf[id].find((r) => !r.dev) ?? releasesOf[id][0];
-  if (first) first.latest = true;
-}
-const bySlug = new Map(pages.map((p) => [p.slug, p]));
-
 const latestOf = (id) => releasesOf[id].find((r) => r.latest) ?? releasesOf[id][0];
 const devOf = (id) => releasesOf[id].find((r) => r.dev);
 
@@ -392,6 +401,8 @@ for (const t of manifest.topics) {
     ...(intro ? [intro, `## Available ${/^[A-Z][a-z]/.test(t.label) ? t.label.toLowerCase() : t.label}`] : []),
     `<Cards>\n\n${cards.join('\n\n')}\n\n</Cards>`,
   ].join('\n\n');
+  if (bySlug.has(t.id))
+    errors.push(`topic ${t.id}: its overview page /${t.id}/ is already used by ${bySlug.get(t.id).rel.name}`);
   const outRel = `${t.id}/index.mdx`;
   writeFile(
     path.join('content', outRel),
@@ -535,7 +546,11 @@ const mdx2md = unified()
   .use(remarkFrontmatter)
   .use(remarkStringify, stringify);
 const md2md = unified().use(remarkParse).use(remarkGfm).use(remarkFrontmatter).use(remarkStringify, stringify);
-const mdUrl = (slug) => `${BASE}${slug}.md`;
+// The Markdown copy of a page sits at its path plus .md; the site's root page
+// (the latest core release's home) has no path, so it uses index.md.
+const mdFile = (slug) => `${slug || 'index'}.md`;
+const mdUrl = (slug) => BASE + mdFile(slug);
+const llmsUrl = (prefix) => BASE + join(prefix, 'llms.txt');
 const toMarkdown = (body, ext, where) => {
   const proc = ext === 'md' ? md2md : mdx2md;
   try {
@@ -572,7 +587,7 @@ for (const page of pages) {
     }).trim(),
     '---',
     '',
-    `> Documentation index: ${BASE}${rel.prefix}/llms.txt. This page is for ${rel.title} ${rel.version}.`,
+    `> Documentation index: ${llmsUrl(rel.prefix)}. This page is for ${rel.title} ${rel.version}.`,
     ...(status ? [status] : []),
     '',
     `# ${page.data.title}`,
@@ -580,7 +595,7 @@ for (const page of pages) {
     '',
   ].join('\n');
   writeFile(
-    path.join('public', `${page.slug}.md`),
+    path.join('public', mdFile(page.slug)),
     header + toMarkdown(page.body, page.ext, `${rel.name}/${page.relPath}`),
   );
 }
@@ -596,7 +611,7 @@ for (const l of landings) {
     '',
     '',
   ].join('\n');
-  writeFile(path.join('public', `${l.slug}.md`), header + toMarkdown(l.body, 'mdx', l.outRel));
+  writeFile(path.join('public', mdFile(l.slug)), header + toMarkdown(l.body, 'mdx', l.outRel));
 }
 
 // ---------- 7. llms.txt, versions.json ----------
@@ -614,23 +629,27 @@ for (const t of manifest.topics) {
     llms.push(`### ${latest.title} ${latest.version}`, '', ...latest.pages.map(entry), '');
     const others = releasesOf[id].filter((r) => r !== latest);
     if (others.length)
-      llms.push(`Other versions: ${others.map((r) => `[${r.version}](${BASE}${r.prefix}/llms.txt)`).join(', ')}`, '');
+      llms.push(`Other versions: ${others.map((r) => `[${r.version}](${llmsUrl(r.prefix)})`).join(', ')}`, '');
   }
 }
 writeFile('public/llms.txt', llms.join('\n'));
-for (const rel of releases)
+// A release at the site root (the latest core release) is covered by the
+// site's own llms.txt above.
+for (const rel of releases.filter((r) => r.prefix))
   writeFile(
     path.join('public', rel.prefix, 'llms.txt'),
     [`# ${rel.title} ${rel.version}`, '', ...rel.pages.map(entry), ''].join('\n'),
   );
 
-// Alias table for the host: /<mount>/latest/<page> -> /<mount>/<newest>/<page>.
+const home = latestOf(manifest.topics[0].sources[0]);
+// Alias table for the host: /<mount>/latest/<page> and /<mount>/<newest>/<page>
+// -> /<mount>/<page>.
 writeFile(
   'public/versions.json',
   JSON.stringify(
     {
       base: BASE,
-      home: url(latestOf(manifest.topics[0].sources[0]).prefix),
+      home: url(home.pages.some((p) => !p.key) ? home.prefix : firstOf(home)),
       docsets: Object.fromEntries(
         Object.entries(docsets).map(([id, d]) => [
           id,

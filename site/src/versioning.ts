@@ -39,6 +39,9 @@ const topics = nav.topics as unknown as { id: string; label: string; sources: st
 const bySlug = new Map((pages as unknown as Page[]).map((p) => [p.slug, p]));
 const base = (nav as { base?: string }).base ?? '/';
 export const href = (slug: string) => base + (slug ? `${slug}/` : '');
+/** A page's Markdown copy: its path plus .md, or index.md for the site root. */
+export const markdownHref = (pathname: string) =>
+  pathname === base ? `${base}index.md` : `${pathname.replace(/\/$/, '')}.md`;
 
 export function pageFor(id: string): Page | undefined {
   return bySlug.get(id.replace(/^\/|\/$/g, ''));
@@ -143,6 +146,18 @@ export function pickerFor(page: Page) {
       samePage: v.pages.includes(page.key),
     })),
   };
+}
+
+/**
+ * The same page in the docset's latest release, for the canonical link of a
+ * dev or older page; undefined when the page is latest or the latest release
+ * doesn't have it.
+ */
+export function latestHrefFor(page: Page) {
+  if (!page.source || page.latest) return undefined;
+  const d = docsets[page.source];
+  const v = release(page.source, d.latest);
+  return v.pages.includes(page.key) ? href([v.prefix, page.key].filter(Boolean).join('/')) : undefined;
 }
 
 /** What routeData.ts stores in Astro.locals for the header and the version picker. */
