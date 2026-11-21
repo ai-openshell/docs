@@ -4,7 +4,17 @@
 # `npm run build` fetches the sources and assembles the pages before
 # building the site; `npm run site` alone expects them to be assembled already.
 # Netlify serves the site at the root, so BASE_PATH stays unset.
+# netlify/edge-functions/ is picked up automatically; markdown.js serves each
+# page's Markdown copy to clients that send `Accept: text/markdown`.
 
 [build]
 command = "npm run build"
 publish = "site/dist"
+
+# A page's URL serves HTML or Markdown depending on Accept (see
+# netlify/edge-functions/markdown.js), so tell caches to key on it. The edge
+# function runs only for Markdown requests, so the static responses set it here.
+[[headers]]
+for = "/*"
+[headers.values]
+Vary = "Accept"
