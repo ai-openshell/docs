@@ -3,6 +3,8 @@
 # Netlify build settings. These override the settings in the Netlify UI.
 # `npm run build` fetches the sources and builds the docs under /docs/;
 # `npm run website` then puts the landing page at / and the docs at /docs/.
+# netlify/edge-functions/ is picked up automatically; markdown.js serves each
+# page's Markdown copy to clients that send `Accept: text/markdown`.
 
 [build]
 command = "npm run build && npm run website"
@@ -10,3 +12,11 @@ publish = "build/website"
 
 [build.environment]
 BASE_PATH = "/docs/"
+
+# A page's URL serves HTML or Markdown depending on Accept (see
+# netlify/edge-functions/markdown.js), so tell caches to key on it. The edge
+# function runs only for Markdown requests, so the static responses set it here.
+[[headers]]
+for = "/*"
+[headers.values]
+Vary = "Accept"

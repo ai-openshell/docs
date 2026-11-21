@@ -24,6 +24,11 @@ repository is published without a version in the URL, such as
 versions have their own path, such as `/0.1.8/about/overview/` or
 `/sdks/go/dev/`.
 
+Every page also has a Markdown copy at its path plus `.md`, listed in
+`/llms.txt`. On Netlify, an [edge function](netlify/edge-functions/markdown.js)
+serves that copy at the page's own URL to clients that send
+`Accept: text/markdown`.
+
 Broken links in fetched versions are warnings, so one repository can't block
 the site. To check a change to a repository's docs, build with `--local` (see
 [CONTRIBUTING.md](CONTRIBUTING.md)), where broken links are errors. Pull request
