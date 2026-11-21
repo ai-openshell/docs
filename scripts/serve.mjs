@@ -5,6 +5,7 @@ import fs from 'node:fs';
 // Usage: node scripts/serve.mjs site/dist 4410 /openshell-docs/
 import http from 'node:http';
 import path from 'node:path';
+import { markdownPath, prefersMarkdown } from '../netlify/edge-functions/markdown.js';
 
 const [dir = 'site/dist', port = '4410', base = '/'] = process.argv.slice(2);
 const root = path.resolve(dir);
@@ -25,9 +26,13 @@ http
   .createServer((req, res) => {
     const u = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     if (!u.startsWith(base) && `${u}/` !== base) return res.writeHead(404).end('not found');
-    let f = path.join(root, u.slice(base.length - 1));
+    // Serve the Markdown copy to clients that ask for it, like the Netlify edge
+    // function does.
+    const md = path.join(root, markdownPath(u, base).slice(base.length - 1));
+    const negotiate = prefersMarkdown(req.headers.accept) && md.startsWith(root) && fs.existsSync(md);
+    let f = negotiate ? md : path.join(root, u.slice(base.length - 1));
     if (!f.startsWith(root)) return res.writeHead(403).end();
-    if (fs.existsSync(f) && fs.statSync(f).isDirectory()) {
+    if (!negotiate && fs.existsSync(f) && fs.statSync(f).isDirectory()) {
       if (!u.endsWith('/')) return res.writeHead(301, { location: `${u}/` }).end();
       f = path.join(f, 'index.html');
     }
@@ -35,7 +40,7 @@ http
       res.writeHead(404, { 'content-type': types['.html'] });
       return fs.createReadStream(path.join(root, '404.html')).pipe(res);
     }
-    res.writeHead(200, { 'content-type': types[path.extname(f)] ?? 'application/octet-stream' });
+    res.writeHead(200, { 'content-type': types[path.extname(f)] ?? 'application/octet-stream', vary: 'Accept' });
     fs.createReadStream(f).pipe(res);
   })
   .listen(Number(port), '127.0.0.1', () => console.log(`serving ${dir} at http://127.0.0.1:${port}${base}`));
