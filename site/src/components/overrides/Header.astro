@@ -3,12 +3,14 @@
 // Header: the site bar (wordmark, site links, search, GitHub, theme), then
 // topic tabs, then (in topics with an overview page) sub-tabs for the overview
 // and each docset. The site bar matches the landing page header (www/index.html);
-// both take their links from theme/nav.json.
+// both take their links from theme/nav.json and the theme toggle from
+// theme/theme-toggle.html and .js.
 // Tab and sub-tab links come from src/routeData.ts and follow the current
 // page's version context.
 import { Icon } from '@astrojs/starlight/components';
 import Search from '@astrojs/starlight/components/Search.astro';
 import siteNav from '../../../../theme/nav.json';
+import themeToggle from '../../../../theme/theme-toggle.html?raw';
 
 const os = Astro.locals.osVersion;
 const topics = os?.topics ?? [];
@@ -40,10 +42,7 @@ const subtabs = ds
     <div class="os-header__search print:hidden"><Search /></div>
     <div class="os-header__end print:hidden sl-hidden md:sl-flex">
       <a href={siteNav.github} class="os-icon-button"><span class="sr-only">GitHub</span><Icon name="github" /></a>
-      <button type="button" class="os-icon-button os-theme-toggle" aria-label="Toggle dark mode">
-        <Icon name="sun" class="os-theme-toggle__sun" />
-        <Icon name="moon" class="os-theme-toggle__moon" />
-      </button>
+      <Fragment set:html={themeToggle} />
     </div>
   </div>
   <nav class="os-tabs print:hidden" aria-label="Topics">
@@ -77,16 +76,8 @@ const subtabs = ds
 </div>
 
 <script>
-  // Same behavior as the landing page toggle. Starlight keeps the choice in
-  // localStorage (starlight-theme); the mobile menu's theme select follows it.
-  document.querySelector('.os-theme-toggle')?.addEventListener('click', () => {
-    const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = t;
-    try {
-      localStorage.setItem('starlight-theme', t);
-    } catch {}
-    (window as { StarlightThemeProvider?: { updatePickers(t: string): void } }).StarlightThemeProvider?.updatePickers(t);
-  });
+  import '../../../../theme/theme-toggle.js';
+
   document.addEventListener('click', (e) => {
     for (const d of document.querySelectorAll<HTMLDetailsElement>('details.os-subtabs__menu[open]'))
       if (!d.contains(e.target as Node)) d.open = false;

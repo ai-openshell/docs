@@ -290,7 +290,8 @@ body {
   gap: 0.25rem;
 }
 /* GitHub link and theme toggle; same as the landing page's .icon-link */
-.os-icon-button {
+.os-icon-button,
+.theme-toggle {
   display: grid;
   place-items: center;
   width: 2rem;
@@ -303,13 +304,10 @@ body {
   font-size: 1.125rem;
   cursor: pointer;
 }
-.os-icon-button:hover {
+.os-icon-button:hover,
+.theme-toggle:hover {
   color: var(--os-fg);
   background: var(--os-surface);
-}
-:root[data-theme="dark"] .os-theme-toggle__moon,
-:root[data-theme="light"] .os-theme-toggle__sun {
-  display: none;
 }
 
 .os-tabs {

@@ -121,7 +121,8 @@ a:hover {
 .nav-link[aria-current="page"] {
   color: var(--os-accent-text);
 }
-.icon-link {
+.icon-link,
+.theme-toggle {
   display: grid;
   place-items: center;
   width: 2rem;
@@ -133,17 +134,14 @@ a:hover {
   color: var(--os-muted);
   cursor: pointer;
 }
-.icon-link:hover {
+.icon-link:hover,
+.theme-toggle:hover {
   color: var(--strong);
   background: var(--os-surface);
 }
 .icon-link svg {
   width: 1.125rem;
   height: 1.125rem;
-}
-:root[data-theme="dark"] .theme-toggle .moon,
-:root[data-theme="light"] .theme-toggle .sun {
-  display: none;
 }
 
 /* ---------- layout ---------- */

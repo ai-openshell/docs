@@ -28,7 +28,7 @@ if (base !== `/${MOUNT}/`) {
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.cpSync(www, out, { recursive: true, filter: (f) => path.extname(f) !== '.md' });
-fs.copyFileSync(path.join(repo, 'theme/tokens.css'), path.join(out, 'tokens.css'));
+for (const f of ['tokens.css', 'theme-toggle.js']) fs.copyFileSync(path.join(repo, 'theme', f), path.join(out, f));
 for (const f of ['favicon.svg', 'apple-touch-icon.png', 'cncf'])
   fs.cpSync(path.join(repo, 'site/static', f), path.join(out, f), { recursive: true });
 fs.cpSync(docs, path.join(out, MOUNT), { recursive: true });
@@ -43,7 +43,11 @@ const swap = (html, re, to, what) => {
 };
 
 // The header links come from theme/nav.json, which the docs header also reads.
+// So does the theme toggle (theme/theme-toggle.html and .js).
 const nav = JSON.parse(fs.readFileSync(path.join(repo, 'theme/nav.json'), 'utf8'));
+const themeToggle = fs
+  .readFileSync(path.join(repo, 'theme/theme-toggle.html'), 'utf8')
+  .replace(/^<!--[\s\S]*?-->\n/gm, '');
 const withNav = (html, current) => {
   const links = nav.links
     .map(
@@ -52,6 +56,7 @@ const withNav = (html, current) => {
     )
     .join('');
   html = swap(html, /<!-- nav-links -->/, links, '<!-- nav-links --> placeholder');
+  html = swap(html, /<!-- theme-toggle -->/, themeToggle, '<!-- theme-toggle --> placeholder');
   return swap(html, /\{\{github\}\}/, htmlEscape(nav.github), '{{github}} placeholder');
 };
 

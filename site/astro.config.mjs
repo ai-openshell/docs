@@ -19,6 +19,13 @@ export default defineConfig({
       social: [{ icon: 'github', label: 'GitHub', href: siteNav.github }],
       customCss: ['./src/styles/tokens.css', './src/styles/theme.css'],
       head: [
+        // Mark the stored theme choice before paint so the header's theme toggle
+        // (theme/theme-toggle.html) shows the right icon; Starlight sets data-theme.
+        {
+          tag: 'script',
+          content:
+            "try{const t=localStorage.getItem('starlight-theme');document.documentElement.dataset.themeChoice=t==='light'||t==='dark'?t:'auto'}catch{}",
+        },
         {
           tag: 'link',
           attrs: { rel: 'apple-touch-icon', href: `${process.env.BASE_PATH ?? '/'}apple-touch-icon.png` },
