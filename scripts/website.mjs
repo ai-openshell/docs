@@ -28,7 +28,10 @@ if (base !== `/${MOUNT}/`) {
 }
 
 fs.rmSync(out, { recursive: true, force: true });
-fs.cpSync(www, out, { recursive: true, filter: (f) => path.extname(f) !== '.md' });
+fs.cpSync(www, out, {
+  recursive: true,
+  filter: (f) => path.extname(f) !== '.md' && !f.startsWith(path.join(www, 'icons')),
+});
 for (const f of ['tokens.css', 'theme-toggle.js']) fs.copyFileSync(path.join(repo, 'theme', f), path.join(out, f));
 for (const f of ['favicon.svg', 'apple-touch-icon.png', 'cncf'])
   fs.cpSync(path.join(repo, 'site/static', f), path.join(out, f), { recursive: true });
@@ -67,6 +70,17 @@ fs.writeFileSync(path.join(out, 'index.html'), withNav(shell, '/'));
 
 // Markdown pages.
 const render = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify);
+// Icon shortcodes: :name: in a www/*.md page becomes www/icons/<name>.svg in
+// the HTML, and is dropped from the Markdown copy.
+const ICON = /:([a-z][a-z0-9-]*):/g;
+const icon = (name) => {
+  const f = path.join(www, 'icons', `${name}.svg`);
+  if (!fs.existsSync(f)) throw new Error(`no icon www/icons/${name}.svg for :${name}:`);
+  return fs
+    .readFileSync(f, 'utf8')
+    .replace(/<!--[\s\S]*?-->\s*/g, '')
+    .trim();
+};
 const pages = fs.readdirSync(www).filter((f) => f.endsWith('.md'));
 const rendered = [];
 for (const file of pages) {
@@ -77,7 +91,7 @@ for (const file of pages) {
   if (!meta?.title || !meta.description)
     throw new Error(`www/${file} needs a title and description in its front matter`);
   const body = src.slice(m[0].length).trim();
-  const main = `<main class="page" data-pagefind-body>\n<h1>${htmlEscape(meta.title)}</h1>\n${String(render.processSync(body))}\n</main>`;
+  const main = `<main class="page" data-pagefind-body>\n<h1>${htmlEscape(meta.title)}</h1>\n${String(render.processSync(body)).replace(ICON, (_, n) => icon(n))}\n</main>`;
   let html = swap(shell, /<title>[^<]*<\/title>/, `<title>${htmlEscape(meta.title)} · OpenShell</title>`, '<title>');
   html = swap(
     html,
@@ -89,7 +103,7 @@ for (const file of pages) {
   fs.mkdirSync(path.join(out, name), { recursive: true });
   fs.writeFileSync(path.join(out, name, 'index.html'), html);
   rendered.push([`/${name}/`, html]);
-  fs.writeFileSync(path.join(out, `${name}.md`), `# ${meta.title}\n\n${body}\n`);
+  fs.writeFileSync(path.join(out, `${name}.md`), `# ${meta.title}\n\n${body.replace(/:[a-z][a-z0-9-]*: /g, '')}\n`);
 }
 
 // Search: index the Markdown pages into /pagefind-www/, which the docs search

@@ -24,5 +24,6 @@ jobs:
       - uses: ai-openshell/workflows/spdx-check@0b051efd25c3f7319634fed863d2e03e1bd55d7b # main
         with:
           include: "*"
-          # LICENSE is the license text; the CNCF logos are third-party artwork.
-          exclude: "LICENSE site/static/cncf/*"
+          # LICENSE is the license text; the CNCF, GitHub, and Slack logos are
+          # third-party artwork.
+          exclude: "LICENSE site/static/cncf/* www/icons/*"

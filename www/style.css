@@ -190,7 +190,15 @@ h2 {
   color: var(--strong);
 }
 .page li + li {
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
+}
+/* Icons from :name: shortcodes (www/icons/) */
+.page .icon {
+  width: 1em;
+  height: 1em;
+  margin-inline-end: 0.15em;
+  vertical-align: -0.125em;
+  color: var(--strong);
 }
 
 /* ---------- hero ---------- */

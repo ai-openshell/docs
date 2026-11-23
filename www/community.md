@@ -1,26 +1,21 @@
 ---
 # SPDX-License-Identifier: Apache-2.0
 title: Community
-description: Where to talk to the OpenShell community and how to contribute.
+description: Where to find the OpenShell community and how to contribute.
 ---
 
 OpenShell is a [Cloud Native Computing Foundation](https://www.cncf.io/)
 sandbox project, built in the open. Everyone is welcome to ask questions, share
 what they're building, and contribute.
 
-## Chat
+## Develop and contribute
 
-Join [`#openshell-dev`](https://cloud-native.slack.com/archives/C0B6Y8WQHU1)
-in the CNCF Slack to ask questions and talk with maintainers and other users.
-If you don't have a CNCF Slack account yet, get an invite at
-[slack.cncf.io](https://slack.cncf.io/).
+To learn how to contribute to OpenShell, see the
+[contributing guide](https://github.com/ai-openshell/openshell/blob/main/CONTRIBUTING.md).
+Other useful links:
 
-## Contributing
-
-OpenShell, its SDKs, and this website are developed on GitHub in the
-[ai-openshell](https://github.com/ai-openshell) organization.
-
-- Read the [contributing guide](https://github.com/ai-openshell/openshell/blob/main/CONTRIBUTING.md)
-  before you open a pull request.
-- Report bugs and request features in
-  [GitHub issues](https://github.com/ai-openshell/openshell/issues).
+- :github: [GitHub](https://github.com/ai-openshell): Find us on GitHub.
+- :slack: [Slack #openshell-dev](https://cloud-native.slack.com/archives/C0B6Y8WQHU1):
+  Follow project-wide developments. To chat about a specific subproject, check
+  out the other channels starting with `#openshell-`. Sign up via
+  [slack.cncf.io](https://slack.cncf.io/).

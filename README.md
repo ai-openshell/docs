@@ -44,7 +44,8 @@ with a `title` and `description` in their front matter. `scripts/website.mjs`
 renders each `www/<name>.md` into the landing page's header and footer at
 `/<name>/`. To add a page, add a Markdown file and its link to
 [`theme/nav.json`](theme/nav.json). The landing page and the docs share one
-header, and both read their links from that file. `mise run website` builds the whole website, and
+header, and both read their links from that file. `:name:` in a page, such as
+`:github:`, inserts the icon `www/icons/<name>.svg`. `mise run website` builds the whole website, and
 `mise run serve-website` serves it.
 
 Search covers the docs and these pages. The docs build has its own
