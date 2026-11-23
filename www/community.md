@@ -10,8 +10,10 @@ what they're building, and contribute.
 
 ## Chat
 
-Join the `#openshell` channel in the [CNCF Slack](https://slack.cncf.io/) to
-ask questions and talk with maintainers and other users.
+Join [`#openshell-dev`](https://cloud-native.slack.com/archives/C0B6Y8WQHU1)
+in the CNCF Slack to ask questions and talk with maintainers and other users.
+If you don't have a CNCF Slack account yet, get an invite at
+[slack.cncf.io](https://slack.cncf.io/).
 
 ## Contributing
 
