@@ -61,38 +61,38 @@ describe('edge function', () => {
     new Request(`https://docs.example${path}`, { ...init, headers: { accept, ...init.headers } });
 
   test('serves the Markdown copy', async () => {
-    const fetched = files({ '/about/overview.md': '# Overview' });
-    const res = await negotiate(get('/about/overview/', 'text/markdown'), html);
-    assert.deepEqual(fetched, ['/about/overview.md']);
+    const fetched = files({ '/docs/about/overview.md': '# Overview' });
+    const res = await negotiate(get('/docs/about/overview/', 'text/markdown'), html);
+    assert.deepEqual(fetched, ['/docs/about/overview.md']);
     assert.equal(res.status, 200);
     assert.equal(res.headers.get('content-type'), 'text/markdown; charset=utf-8');
-    assert.equal(res.headers.get('content-location'), '/about/overview.md');
+    assert.equal(res.headers.get('content-location'), '/docs/about/overview.md');
     assert.equal(res.headers.get('etag'), '"md"');
     assert.equal(res.headers.get('vary'), 'Accept');
     assert.equal(await res.text(), '# Overview');
   });
 
-  test('serves the root page as /index.md', async () => {
-    files({ '/index.md': '# Home' });
-    assert.equal(await (await negotiate(get('/', 'text/markdown'), html)).text(), '# Home');
+  test('serves the docs root as /docs/index.md', async () => {
+    files({ '/docs/index.md': '# Home' });
+    assert.equal(await (await negotiate(get('/docs/', 'text/markdown'), html)).text(), '# Home');
   });
 
   test('serves HTML to browsers without fetching', async () => {
     const fetched = files({});
-    const res = await negotiate(get('/about/overview/', 'text/html,*/*;q=0.8'), html);
+    const res = await negotiate(get('/docs/about/overview/', 'text/html,*/*;q=0.8'), html);
     assert.deepEqual(fetched, []);
     assert.equal(await res.text(), '<html>');
   });
 
   test('falls back to the page when there is no Markdown copy', async () => {
     files({});
-    const res = await negotiate(get('/latest/about/overview/', 'text/markdown'), html);
+    const res = await negotiate(get('/docs/latest/about/overview/', 'text/markdown'), html);
     assert.equal(await res.text(), '<html>');
   });
 
   test('ignores other methods', async () => {
-    const fetched = files({ '/about/overview.md': '# Overview' });
-    const res = await negotiate(get('/about/overview/', 'text/markdown', { method: 'POST' }), html);
+    const fetched = files({ '/docs/about/overview.md': '# Overview' });
+    const res = await negotiate(get('/docs/about/overview/', 'text/markdown', { method: 'POST' }), html);
     assert.deepEqual(fetched, []);
     assert.equal(await res.text(), '<html>');
   });

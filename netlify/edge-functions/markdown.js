@@ -3,7 +3,7 @@
 // Serve a page's Markdown copy to clients that ask for Markdown with
 // `Accept: text/markdown`. Every page has one at its path plus .md (the site's
 // root page uses /index.md; see markdownHref in site/src/versioning.ts).
-// Netlify runs it only for GET and HEAD requests whose Accept header mentions
+// Netlify runs it only for requests whose Accept header mentions
 // text/markdown, so browser traffic never invokes it (or costs anything);
 // netlify.toml adds `Vary: Accept` to the static responses. Paths without a
 // Markdown copy, such as redirect pages, fall back to the normal response.
@@ -37,12 +37,16 @@ export function prefersMarkdown(accept) {
 export const markdownPath = (pathname, base = '/') =>
   pathname === base ? `${base}index.md` : `${pathname.replace(/\/$/, '')}.md`;
 
+// The docs are served under /docs/ (netlify.toml sets BASE_PATH); the landing
+// page at / has no Markdown copy and falls through to the normal response.
+const BASE = '/docs/';
+
 export default async (request, context) => {
   if (!['GET', 'HEAD'].includes(request.method) || !prefersMarkdown(request.headers.get('accept'))) {
     return context.next();
   }
   const url = new URL(request.url);
-  url.pathname = markdownPath(url.pathname);
+  url.pathname = markdownPath(url.pathname, BASE);
   // Forward the request's headers so password-protected deploy previews work.
   const md = await fetch(url, { method: request.method, headers: request.headers });
   if (!md.ok && md.status !== 304) return context.next();
@@ -60,10 +64,10 @@ export default async (request, context) => {
 
 // Pages have no file extension; assets, .md copies, llms.txt and the like skip
 // this function. The header value is a regular expression matched against the
-// whole Accept header; prefersMarkdown then weighs q-values.
+// whole Accept header; prefersMarkdown then weighs q-values. The handler checks
+// the method itself: Netlify's `method` filter doesn't accept HEAD.
 export const config = {
   pattern: '^/.*$',
   excludedPattern: '\\.[A-Za-z0-9]+$',
-  method: ['GET', 'HEAD'],
   header: { accept: '[Tt][Ee][Xx][Tt]/[Mm][Aa][Rr][Kk][Dd][Oo][Ww][Nn]' },
 };
