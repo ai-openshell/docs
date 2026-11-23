@@ -36,6 +36,40 @@ The published website serves a small landing page from [`www/`](www/)
 at `/` and the docs at `/docs/`. [`scripts/website.mjs`](scripts/website.mjs)
 combines the two after the docs build.
 
+## Website pages
+
+The landing page, [`www/index.html`](www/index.html), is hand-written HTML. Other
+pages outside the docs, such as `/community/`, are Markdown files in `www/`
+with a `title` and `description` in their front matter. `scripts/website.mjs`
+renders each `www/<name>.md` into the landing page's header and footer at
+`/<name>/`. To add a page, add a Markdown file and link it from the header in
+`www/index.html`. `mise run website` builds the whole website, and
+`mise run serve-website` serves it.
+
+## Markdown for agents
+
+Every page has a Markdown copy at its URL plus `.md`, such as
+`/docs/about/overview.md` or `/community.md`. The docs list theirs in
+`/docs/llms.txt`, and each docs page links to its copy in the page actions menu
+(Copy page, View as Markdown, Open in Claude or ChatGPT).
+
+The assembler writes the docs copies from each page's source, so they keep
+the source's text rather than the rendered HTML. Source repositories can mark
+content for one output only: `<llms-only>` blocks appear only in the Markdown
+copy, and `<llms-ignore>` blocks only on the site.
+
+## Hosting
+
+The website is hosted on [Netlify](https://www.netlify.com/) under the CNCF's
+account. [`netlify.toml`](netlify.toml) holds the build settings, which
+override the Netlify UI: Netlify runs `npm run build && npm run website` with
+`BASE_PATH=/docs/` and publishes `build/website`. Netlify also builds a deploy
+preview for each pull request.
+
+The [Site workflow](.github/workflows/site.yml) also builds the docs on every
+pull request and publishes them to GitHub Pages from `main`, at
+`/<repository>/` and without the landing page.
+
 ## Run it locally
 
 ```shell
