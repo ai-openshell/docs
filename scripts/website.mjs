@@ -36,13 +36,30 @@ fs.cpSync(docs, path.join(out, MOUNT), { recursive: true });
 // absolutely (/docs/_astro/...), so it works at the root too.
 fs.copyFileSync(path.join(docs, '404.html'), path.join(out, '404.html'));
 
-// Markdown pages.
-const shell = fs.readFileSync(path.join(www, 'index.html'), 'utf8');
 const htmlEscape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const swap = (html, re, to, what) => {
   if (!re.test(html)) throw new Error(`www/index.html has no ${what}`);
   return html.replace(re, () => to);
 };
+
+// The header links come from theme/nav.json, which the docs header also reads.
+const nav = JSON.parse(fs.readFileSync(path.join(repo, 'theme/nav.json'), 'utf8'));
+const withNav = (html, current) => {
+  const links = nav.links
+    .map(
+      (l) =>
+        `<a href="${htmlEscape(l.href)}" class="nav-link"${l.href === current ? ' aria-current="page"' : ''}>${htmlEscape(l.label)}</a>`,
+    )
+    .join('');
+  html = swap(html, /<!-- nav-links -->/, links, '<!-- nav-links --> placeholder');
+  return swap(html, /\{\{github\}\}/, htmlEscape(nav.github), '{{github}} placeholder');
+};
+
+// The landing page.
+const shell = fs.readFileSync(path.join(www, 'index.html'), 'utf8');
+fs.writeFileSync(path.join(out, 'index.html'), withNav(shell, '/'));
+
+// Markdown pages.
 const render = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify);
 const pages = fs.readdirSync(www).filter((f) => f.endsWith('.md'));
 for (const file of pages) {
@@ -61,8 +78,7 @@ for (const file of pages) {
     `<meta name="description" content="${htmlEscape(meta.description)}" />`,
     'description meta tag',
   );
-  html = swap(html, /<main>[\s\S]*<\/main>/, main, '<main>');
-  html = html.replace(`href="/${name}/" class="nav-link"`, `href="/${name}/" class="nav-link" aria-current="page"`);
+  html = withNav(swap(html, /<main>[\s\S]*<\/main>/, main, '<main>'), `/${name}/`);
   fs.mkdirSync(path.join(out, name), { recursive: true });
   fs.writeFileSync(path.join(out, name, 'index.html'), html);
   fs.writeFileSync(path.join(out, `${name}.md`), `# ${meta.title}\n\n${body}\n`);

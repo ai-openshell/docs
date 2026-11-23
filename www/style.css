@@ -72,7 +72,6 @@ a:hover {
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   height: var(--os-header-h);
   padding: 0 1.5rem;
   border-bottom: 1px solid var(--os-border);
@@ -95,7 +94,16 @@ a:hover {
   width: auto;
 }
 
-.top nav {
+/* Same layout as the docs header (site/src/components/overrides/Header.astro):
+   wordmark and site links on the left, GitHub and theme on the right. */
+.site-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-inline-start: 1rem;
+  margin-inline-end: auto;
+}
+.top-end {
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -453,6 +461,9 @@ a.card:hover .arrow {
 @media (max-width: 40rem) {
   .top {
     padding: 0 1rem;
+  }
+  .site-links {
+    margin-inline-start: 0.5rem;
   }
   main {
     padding: 0 1rem;

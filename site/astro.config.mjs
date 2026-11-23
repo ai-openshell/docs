@@ -4,6 +4,7 @@
 
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
+import siteNav from '../theme/nav.json' with { type: 'json' };
 
 // BASE_PATH is the path the site is served under (GitHub Pages: /<repo>/).
 export default defineConfig({
@@ -15,7 +16,7 @@ export default defineConfig({
       title: 'OpenShell',
       description: 'The safe, private runtime for autonomous AI agents.',
       favicon: '/favicon.svg',
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ai-openshell' }],
+      social: [{ icon: 'github', label: 'GitHub', href: siteNav.github }],
       customCss: ['./src/styles/tokens.css', './src/styles/theme.css'],
       head: [
         {

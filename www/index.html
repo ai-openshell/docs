@@ -41,10 +41,10 @@
         </svg>
         <span>OpenShell</span>
       </a>
-      <nav aria-label="Site">
-        <a href="/docs/" class="nav-link">Docs</a>
-        <a href="/community/" class="nav-link">Community</a>
-        <a href="https://github.com/ai-openshell" class="icon-link">
+      <!-- Links and the GitHub URL come from theme/nav.json, shared with the docs header; scripts/website.mjs fills them in. -->
+      <nav aria-label="Site" class="site-links"><!-- nav-links --></nav>
+      <div class="top-end">
+        <a href="{{github}}" class="icon-link">
           <span class="sr-only">GitHub</span>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -73,7 +73,7 @@
             />
           </svg>
         </button>
-      </nav>
+      </div>
     </header>
 
     <main>

@@ -42,8 +42,9 @@ The landing page, [`www/index.html`](www/index.html), is hand-written HTML. Othe
 pages outside the docs, such as `/community/`, are Markdown files in `www/`
 with a `title` and `description` in their front matter. `scripts/website.mjs`
 renders each `www/<name>.md` into the landing page's header and footer at
-`/<name>/`. To add a page, add a Markdown file and link it from the header in
-`www/index.html`. `mise run website` builds the whole website, and
+`/<name>/`. To add a page, add a Markdown file and its link to
+[`theme/nav.json`](theme/nav.json). The landing page and the docs share one
+header, and both read their links from that file. `mise run website` builds the whole website, and
 `mise run serve-website` serves it.
 
 ## Markdown for agents
