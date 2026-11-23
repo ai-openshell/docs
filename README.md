@@ -38,22 +38,23 @@ combines the two after the docs build.
 
 ## Website pages
 
-The landing page, [`www/index.html`](www/index.html), is hand-written HTML. Other
-pages outside the docs, such as `/community/`, are Markdown files in `www/`
-with a `title` and `description` in their front matter. `scripts/website.mjs`
-renders each `www/<name>.md` into the landing page's header and footer at
-`/<name>/`. To add a page, add a Markdown file and its link to
-[`theme/nav.json`](theme/nav.json). The landing page and the docs share one
-header, and both read their links from that file. `:name:` in a page, such as
-`:github:`, inserts the icon `www/icons/<name>.svg`. `mise run website` builds the whole website, and
-`mise run serve-website` serves it.
+The landing page, [`www/index.html`](www/index.html), is hand-written HTML.
+Other pages outside the docs, such as `/community/`, are Markdown files in
+`www/` with a `title` and `description` in their front matter.
+`scripts/website.mjs` renders each `www/<name>.md` into the landing page's
+header and footer at `/<name>/`. To add a page, add a Markdown file and its link
+to [`theme/nav.json`](theme/nav.json), which the site bar reads. `:name:` in a
+page, such as `:github:`, inserts the icon `www/icons/<name>.svg`. `mise run
+website` builds the whole website, and `mise run serve-website` serves it.
 
-Search covers the docs and these pages. The docs build has its own
-[Pagefind](https://pagefind.app/) index; `scripts/website.mjs` indexes the
-website pages into `/pagefind-www/`, and both the docs search and the search on
-the website pages ([`www/search.js`](www/search.js)) merge the two. The docs
-only merge the website index when built with `WEBSITE=1`, as Netlify and
-`mise run website` do, so a docs-only build keeps docs-only search.
+Every page, docs included, renders the same site bar from
+[`theme/site-bar.mjs`](theme/site-bar.mjs): wordmark, site links, search,
+GitHub, and theme toggle, with one stylesheet (`theme/site-bar.css`) and
+script (`theme/search.js`). Search uses the docs build's
+[Pagefind](https://pagefind.app/) index, and `scripts/website.mjs` indexes the
+website pages into `/pagefind-www/`; on the full website (`WEBSITE=1`, as
+Netlify and `mise run website` set it) search merges the two. A docs-only
+build searches the docs only.
 
 ## Markdown for agents
 

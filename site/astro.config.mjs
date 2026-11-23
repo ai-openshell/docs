@@ -17,10 +17,10 @@ export default defineConfig({
       description: 'The safe, private runtime for autonomous AI agents.',
       favicon: '/favicon.svg',
       social: [{ icon: 'github', label: 'GitHub', href: siteNav.github }],
-      customCss: ['./src/styles/tokens.css', './src/styles/theme.css'],
+      customCss: ['./src/styles/tokens.css', './src/styles/site-bar.css', './src/styles/theme.css'],
       head: [
         // Mark the stored theme choice before paint so the header's theme toggle
-        // (theme/theme-toggle.html) shows the right icon; Starlight sets data-theme.
+        // (theme/site-bar.mjs) shows the right icon; Starlight sets data-theme.
         {
           tag: 'script',
           content:
@@ -68,12 +68,9 @@ export default defineConfig({
       // Sidebar, pagination, topic tabs and the version picker all follow the
       // version context of the current page; see src/versioning.ts.
       routeMiddleware: './src/routeData.ts',
-      // On the full website (WEBSITE=1), search also covers the pages outside
-      // the docs, which scripts/website.mjs indexes into /pagefind-www/. Their
-      // weight is halved so a short page doesn't outrank the docs on a common term.
-      pagefind: process.env.WEBSITE
-        ? { mergeIndex: [{ bundlePath: '/pagefind-www/', baseUrl: '/', indexWeight: 0.5 }] }
-        : true,
+      // Starlight builds the Pagefind index; the site bar's search
+      // (theme/search.js) shows it instead of Starlight's search box.
+      pagefind: true,
     }),
   ],
 });

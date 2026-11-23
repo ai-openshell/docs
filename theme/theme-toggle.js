@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// Theme toggle shared by the landing page and the docs header (markup in
-// theme-toggle.html). Each click cycles auto -> light -> dark. The choice is
-// stored where Starlight keeps it (localStorage starlight-theme, '' for auto),
-// so it carries between the landing page and the docs, and Starlight's own
+// Theme toggle in the site bar (markup in site-bar.mjs). Each click cycles
+// auto -> light -> dark. The choice is stored where Starlight keeps it
+// (localStorage starlight-theme, '' for auto), so it carries between the landing page and the docs, and Starlight's own
 // theme select in the docs mobile menu stays in sync.
 const KEY = 'starlight-theme';
 const ORDER = ['auto', 'light', 'dark'];

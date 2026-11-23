@@ -15,6 +15,7 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 import YAML from 'yaml';
+import { siteBar } from '../theme/site-bar.mjs';
 
 const MOUNT = 'docs';
 const [docs = 'site/dist', out = 'build/website'] = process.argv.slice(2).map((p) => path.resolve(p));
@@ -32,7 +33,8 @@ fs.cpSync(www, out, {
   recursive: true,
   filter: (f) => path.extname(f) !== '.md' && !f.startsWith(path.join(www, 'icons')),
 });
-for (const f of ['tokens.css', 'theme-toggle.js']) fs.copyFileSync(path.join(repo, 'theme', f), path.join(out, f));
+for (const f of ['tokens.css', 'site-bar.css', 'search.js', 'theme-toggle.js'])
+  fs.copyFileSync(path.join(repo, 'theme', f), path.join(out, f));
 for (const f of ['favicon.svg', 'apple-touch-icon.png', 'cncf'])
   fs.cpSync(path.join(repo, 'site/static', f), path.join(out, f), { recursive: true });
 fs.cpSync(docs, path.join(out, MOUNT), { recursive: true });
@@ -46,23 +48,15 @@ const swap = (html, re, to, what) => {
   return html.replace(re, () => to);
 };
 
-// The header links come from theme/nav.json, which the docs header also reads.
-// So does the theme toggle (theme/theme-toggle.html and .js).
-const nav = JSON.parse(fs.readFileSync(path.join(repo, 'theme/nav.json'), 'utf8'));
-const themeToggle = fs
-  .readFileSync(path.join(repo, 'theme/theme-toggle.html'), 'utf8')
-  .replace(/^<!--[\s\S]*?-->\n/gm, '');
-const withNav = (html, current) => {
-  const links = nav.links
-    .map(
-      (l) =>
-        `<a href="${htmlEscape(l.href)}" class="nav-link"${l.href === current ? ' aria-current="page"' : ''}>${htmlEscape(l.label)}</a>`,
-    )
-    .join('');
-  html = swap(html, /<!-- nav-links -->/, links, '<!-- nav-links --> placeholder');
-  html = swap(html, /<!-- theme-toggle -->/, themeToggle, '<!-- theme-toggle --> placeholder');
-  return swap(html, /\{\{github\}\}/, htmlEscape(nav.github), '{{github}} placeholder');
-};
+// The site bar (theme/site-bar.mjs), the same one the docs header renders.
+// Search covers the docs index and the website pages' index written below.
+const withNav = (html, current) =>
+  swap(
+    html,
+    /<!-- site-bar -->/,
+    siteBar({ current, search: { bundlePath: `/${MOUNT}/pagefind/`, baseUrl: `/${MOUNT}/`, merge: '/pagefind-www/' } }),
+    '<!-- site-bar --> placeholder',
+  );
 
 // The landing page.
 const shell = fs.readFileSync(path.join(www, 'index.html'), 'utf8');
@@ -91,7 +85,7 @@ for (const file of pages) {
   if (!meta?.title || !meta.description)
     throw new Error(`www/${file} needs a title and description in its front matter`);
   const body = src.slice(m[0].length).trim();
-  const main = `<main class="page" data-pagefind-body>\n<h1>${htmlEscape(meta.title)}</h1>\n${String(render.processSync(body)).replace(ICON, (_, n) => icon(n))}\n</main>`;
+  const main = `<main class="page" data-pagefind-body data-pagefind-meta="section:${htmlEscape(meta.title)}">\n<h1>${htmlEscape(meta.title)}</h1>\n${String(render.processSync(body)).replace(ICON, (_, n) => icon(n))}\n</main>`;
   let html = swap(shell, /<title>[^<]*<\/title>/, `<title>${htmlEscape(meta.title)} · OpenShell</title>`, '<title>');
   html = swap(
     html,

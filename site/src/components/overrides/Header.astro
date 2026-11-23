@@ -1,16 +1,20 @@
 ---
 // SPDX-License-Identifier: Apache-2.0
-// Header: the site bar (wordmark, site links, search, GitHub, theme), then
-// topic tabs, then (in topics with an overview page) sub-tabs for the overview
-// and each docset. The site bar matches the landing page header (www/index.html);
-// both take their links from theme/nav.json and the theme toggle from
-// theme/theme-toggle.html and .js.
+// Header: the site bar, then topic tabs, then (in topics with an overview page)
+// sub-tabs for the overview and each docset. The site bar (wordmark, site
+// links, search, GitHub, theme) is theme/site-bar.mjs, shared with the website
+// pages, so it is the same markup, styles, and scripts everywhere.
 // Tab and sub-tab links come from src/routeData.ts and follow the current
 // page's version context.
-import { Icon } from '@astrojs/starlight/components';
-import Search from '@astrojs/starlight/components/Search.astro';
-import siteNav from '../../../../theme/nav.json';
-import themeToggle from '../../../../theme/theme-toggle.html?raw';
+import { siteBar } from '../../../../theme/site-bar.mjs';
+
+const base = import.meta.env.BASE_URL;
+// Search this build's Pagefind index; on the full website (WEBSITE=1), merge in
+// the website pages' index too.
+const bar = siteBar({
+  current: base,
+  search: { bundlePath: `${base}pagefind/`, baseUrl: base, merge: process.env.WEBSITE ? '/pagefind-www/' : undefined },
+});
 
 const os = Astro.locals.osVersion;
 const topics = os?.topics ?? [];
@@ -28,23 +32,7 @@ const subtabs = ds
 ---
 
 <div class="os-header">
-  <div class="os-header__row">
-    <a href="/" class="os-wordmark" translate="no">
-      <!-- The OpenShell shield (ai-openshell/openshell docs/brand/assets/openshell-mark.svg), cropped to the shield -->
-      <svg viewBox="14 7 72 87" aria-hidden="true" class="os-wordmark__mark"><path d="M50 9 L84 23 V51 C84 72 69 86 50 92 C31 86 16 72 16 51 V23 Z" fill="#76B900"/><g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M37 41 L49 50 L37 59"/><path d="M55 59 H67"/></g></svg>
-      <span>OpenShell</span>
-    </a>
-    <nav class="os-site-links print:hidden" aria-label="Site">
-      {siteNav.links.map((l) => (
-        <a href={l.href} class="os-site-link" aria-current={l.href === import.meta.env.BASE_URL ? 'page' : undefined}>{l.label}</a>
-      ))}
-    </nav>
-    <div class="os-header__search print:hidden"><Search /></div>
-    <div class="os-header__end print:hidden sl-hidden md:sl-flex">
-      <a href={siteNav.github} class="os-icon-button"><span class="sr-only">GitHub</span><Icon name="github" /></a>
-      <Fragment set:html={themeToggle} />
-    </div>
-  </div>
+  <Fragment set:html={bar} />
   <nav class="os-tabs print:hidden" aria-label="Topics">
     {topics.map((t) => (
       <a href={t.href} class="os-tab" aria-current={t.isCurrent ? 'true' : undefined}>{t.label}</a>
@@ -76,6 +64,7 @@ const subtabs = ds
 </div>
 
 <script>
+  import '../../../../theme/search.js';
   import '../../../../theme/theme-toggle.js';
 
   document.addEventListener('click', (e) => {
