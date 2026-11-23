@@ -9,7 +9,7 @@ const isLatest = picker?.options.some((o) => o.current && o.latest);
 
 {picker && (
   <div class="os-version-field">
-  <span class="os-version-field__label" id="os-version-label">Version</span>
+  <span class="os-version-field__label" id="os-version-label">{picker.title} version</span>
   <details class="os-version" aria-labelledby="os-version-label">
     <summary>
       <span class="os-version__selected">
