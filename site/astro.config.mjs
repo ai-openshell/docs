@@ -15,7 +15,7 @@ export default defineConfig({
       title: 'OpenShell',
       description: 'The safe, private runtime for autonomous AI agents.',
       favicon: '/favicon.svg',
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ai-openshell/docs' }],
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ai-openshell' }],
       customCss: ['./src/styles/tokens.css', './src/styles/theme.css'],
       head: [
         {
