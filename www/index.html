@@ -47,6 +47,14 @@
       <!-- Links and the GitHub URL come from theme/nav.json and the theme toggle from theme/theme-toggle.html, all shared with the docs header; scripts/website.mjs fills them in. -->
       <nav aria-label="Site" class="site-links"><!-- nav-links --></nav>
       <div class="top-end">
+        <button type="button" class="search-button" data-search-open>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.75" />
+            <path d="m16 16 4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+          <span class="search-button__label">Search</span>
+          <kbd class="search-button__kbd">Ctrl K</kbd>
+        </button>
         <a href="{{github}}" class="icon-link">
           <span class="sr-only">GitHub</span>
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -59,6 +67,13 @@
         <!-- theme-toggle -->
       </div>
     </header>
+    <!-- Site search (www/search.js): the docs' Pagefind index merged with the website pages' -->
+    <dialog class="search-dialog" aria-label="Search">
+      <div class="search-dialog__frame">
+        <button type="button" class="search-dialog__close" data-search-close>Cancel</button>
+        <div id="site-search"></div>
+      </div>
+    </dialog>
 
     <main>
       <!-- Copy comes from the ai-openshell/openshell README (intro, How It Works,
@@ -209,5 +224,6 @@
       }
     </script>
     <script type="module" src="/theme-toggle.js"></script>
+    <script type="module" src="/search.js"></script>
   </body>
 </html>

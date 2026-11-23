@@ -477,3 +477,105 @@ a.card:hover .arrow {
     padding-top: 3.5rem;
   }
 }
+
+/* ---------- search (www/search.js) ---------- */
+/* The button matches the docs header search; the dialog follows Starlight's. */
+.search-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 16rem;
+  height: 2.25rem;
+  margin-inline-end: 0.5rem;
+  padding: 0 0.5rem 0 0.75rem;
+  border: 1px solid var(--os-border);
+  border-radius: var(--os-radius);
+  background: var(--os-surface);
+  color: var(--os-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-button:hover {
+  color: var(--strong);
+}
+.search-button svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+.search-button__label {
+  margin-inline-end: auto;
+}
+.search-button__kbd {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--os-border);
+  border-radius: 4px;
+  background: var(--os-bg);
+  font-family: var(--os-font-sans);
+  font-size: 0.75rem;
+}
+.search-dialog {
+  width: min(100% - 2rem, 45rem);
+  max-height: calc(100% - 8rem);
+  margin: 4rem auto auto;
+  padding: 0;
+  border: 1px solid var(--os-border);
+  border-radius: var(--os-radius);
+  background: var(--os-bg);
+  color: var(--text);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.25);
+}
+.search-dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(2px);
+}
+.search-dialog__frame {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+.search-dialog__close {
+  align-self: flex-end;
+  border: 0;
+  background: none;
+  color: var(--os-accent-text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+#site-search {
+  --pagefind-ui-scale: 0.8;
+  --pagefind-ui-primary: var(--strong);
+  --pagefind-ui-text: var(--text);
+  --pagefind-ui-background: var(--os-bg);
+  --pagefind-ui-border: var(--os-border);
+  --pagefind-ui-tag: var(--os-surface);
+  --pagefind-ui-border-radius: var(--os-radius);
+  --pagefind-ui-font: var(--os-font-sans);
+}
+#site-search mark {
+  background: none;
+  color: var(--os-accent-text);
+  font-weight: 600;
+}
+@media (max-width: 50rem) {
+  .search-button {
+    width: 2rem;
+    height: 2rem;
+    margin-inline-end: 0;
+    padding: 0;
+    justify-content: center;
+    border: 0;
+    background: none;
+  }
+  .search-button svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .search-button__label,
+  .search-button__kbd {
+    display: none;
+  }
+}

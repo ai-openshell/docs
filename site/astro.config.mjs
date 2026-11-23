@@ -68,6 +68,12 @@ export default defineConfig({
       // Sidebar, pagination, topic tabs and the version picker all follow the
       // version context of the current page; see src/versioning.ts.
       routeMiddleware: './src/routeData.ts',
+      // On the full website (WEBSITE=1), search also covers the pages outside
+      // the docs, which scripts/website.mjs indexes into /pagefind-www/. Their
+      // weight is halved so a short page doesn't outrank the docs on a common term.
+      pagefind: process.env.WEBSITE
+        ? { mergeIndex: [{ bundlePath: '/pagefind-www/', baseUrl: '/', indexWeight: 0.5 }] }
+        : true,
     }),
   ],
 });

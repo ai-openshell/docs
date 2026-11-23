@@ -47,6 +47,13 @@ renders each `www/<name>.md` into the landing page's header and footer at
 header, and both read their links from that file. `mise run website` builds the whole website, and
 `mise run serve-website` serves it.
 
+Search covers the docs and these pages. The docs build has its own
+[Pagefind](https://pagefind.app/) index; `scripts/website.mjs` indexes the
+website pages into `/pagefind-www/`, and both the docs search and the search on
+the website pages ([`www/search.js`](www/search.js)) merge the two. The docs
+only merge the website index when built with `WEBSITE=1`, as Netlify and
+`mise run website` do, so a docs-only build keeps docs-only search.
+
 ## Markdown for agents
 
 Every page has a Markdown copy at its URL plus `.md`, such as
