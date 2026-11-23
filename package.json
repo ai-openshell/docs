@@ -18,6 +18,7 @@
     "@astrojs/starlight": "0.42.10",
     "astro": "7.4.11",
     "github-slugger": "2.0.0",
+    "pagefind": "1.6.0",
     "pele": "1.13.0",
     "rehype-stringify": "10.0.1",
     "remark-frontmatter": "5.0.0",

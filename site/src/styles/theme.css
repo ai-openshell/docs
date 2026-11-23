@@ -92,6 +92,8 @@ body {
   gap: 1rem;
   height: var(--os-header-h);
   padding-inline: var(--sl-nav-pad-x);
+  /* Sets the site bar apart from the docs rows below it */
+  border-bottom: 1px solid var(--os-border);
 }
 [data-has-sidebar] .os-header__row {
   padding-inline-end: calc(var(--sl-nav-pad-x) + var(--sl-menu-button-size) + 0.5rem);

@@ -10,3 +10,5 @@ publish = "build/website"
 
 [build.environment]
 BASE_PATH = "/docs/"
+# Docs search also covers the website pages (pagefind-www, see scripts/website.mjs).
+WEBSITE = "1"

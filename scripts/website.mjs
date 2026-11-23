@@ -8,6 +8,7 @@
 // Usage: node scripts/website.mjs site/dist build/website
 import fs from 'node:fs';
 import path from 'node:path';
+import * as pagefind from 'pagefind';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
@@ -67,6 +68,7 @@ fs.writeFileSync(path.join(out, 'index.html'), withNav(shell, '/'));
 // Markdown pages.
 const render = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify);
 const pages = fs.readdirSync(www).filter((f) => f.endsWith('.md'));
+const rendered = [];
 for (const file of pages) {
   const name = path.basename(file, '.md');
   const src = fs.readFileSync(path.join(www, file), 'utf8');
@@ -75,7 +77,7 @@ for (const file of pages) {
   if (!meta?.title || !meta.description)
     throw new Error(`www/${file} needs a title and description in its front matter`);
   const body = src.slice(m[0].length).trim();
-  const main = `<main class="page">\n<h1>${htmlEscape(meta.title)}</h1>\n${String(render.processSync(body))}\n</main>`;
+  const main = `<main class="page" data-pagefind-body>\n<h1>${htmlEscape(meta.title)}</h1>\n${String(render.processSync(body))}\n</main>`;
   let html = swap(shell, /<title>[^<]*<\/title>/, `<title>${htmlEscape(meta.title)} · OpenShell</title>`, '<title>');
   html = swap(
     html,
@@ -86,8 +88,16 @@ for (const file of pages) {
   html = withNav(swap(html, /<main>[\s\S]*<\/main>/, main, '<main>'), `/${name}/`);
   fs.mkdirSync(path.join(out, name), { recursive: true });
   fs.writeFileSync(path.join(out, name, 'index.html'), html);
+  rendered.push([`/${name}/`, html]);
   fs.writeFileSync(path.join(out, `${name}.md`), `# ${meta.title}\n\n${body}\n`);
 }
+
+// Search: index the Markdown pages into /pagefind-www/, which the docs search
+// merges with its own index (pagefind.mergeIndex in site/astro.config.mjs).
+const { index } = await pagefind.createIndex();
+for (const [url, content] of rendered) await index.addHTMLFile({ url, content });
+await index.writeFiles({ outputPath: path.join(out, 'pagefind-www') });
+await pagefind.close();
 
 console.log(
   `website -> ${path.relative(process.cwd(), out)} (landing at /, ${pages.length} Markdown pages, docs at /${MOUNT}/)`,
