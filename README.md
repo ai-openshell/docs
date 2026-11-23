@@ -7,10 +7,10 @@ docs of several repositories. Each repository keeps its docs next to its code
 and ships them with its releases. This repository holds no page content: it
 owns the build, the theme, and the navigation.
 
-| Docset    | Repository                                                          | Path        | Versions                          |
-| --------- | ------------------------------------------------------------------- | ----------- | --------------------------------- |
-| OpenShell | [ai-openshell/openshell](https://github.com/ai-openshell/openshell) | `docs/`     | dev (`main`), 0.1.9, 0.1.8, 0.1.7 |
-| Go SDK    | [ai-openshell/sdk-go](https://github.com/ai-openshell/sdk-go)       | `docs/src/` | dev (`main`), 0.1.8, 0.1.7        |
+| Docset    | Repository                                                          | Path        | Dev branch |
+| --------- | ------------------------------------------------------------------- | ----------- | ---------- |
+| OpenShell | [ai-openshell/openshell](https://github.com/ai-openshell/openshell) | `docs/`     | `main`     |
+| Go SDK    | [ai-openshell/sdk-go](https://github.com/ai-openshell/sdk-go)       | `docs/src/` | `main`     |
 
 ## How it works
 
@@ -21,7 +21,7 @@ branch, reads it in its own format (Fern `index.yml`, mdBook `SUMMARY.md`, or
 [Starlight](https://starlight.astro.build/). The newest release of each
 repository is published without a version in the URL, such as
 `/about/overview/` or `/sdks/go/`, so links always show the current docs. Other
-versions have their own path, such as `/0.1.8/about/overview/` or
+versions have their own path, such as `/<version>/about/overview/` or
 `/sdks/go/dev/`.
 
 Broken links in fetched versions are warnings, so one repository can't block
