@@ -466,10 +466,15 @@ a.card:hover .arrow {
   display: block;
 }
 
-@media (max-width: 40rem) {
+/* Same side padding and link spacing as the docs header, at the same
+   breakpoints (site/src/styles/theme.css), so the bar doesn't shift between
+   the landing page and the docs. */
+@media (width < 50rem) {
   .top {
-    padding: 0 1rem;
+    padding: 0 1.25rem;
   }
+}
+@media (max-width: 50rem) {
   .site-links {
     gap: 0;
     margin-inline-start: 0.75rem;
@@ -478,6 +483,8 @@ a.card:hover .arrow {
   .nav-link {
     padding-inline: 0.375rem;
   }
+}
+@media (max-width: 40rem) {
   main {
     padding: 0 1rem;
   }
@@ -568,7 +575,7 @@ a.card:hover .arrow {
   color: var(--os-accent-text);
   font-weight: 600;
 }
-@media (max-width: 50rem) {
+@media (width < 50rem) {
   .search-button {
     width: 2rem;
     height: 2rem;

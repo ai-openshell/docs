@@ -94,6 +94,10 @@ body {
   padding-inline: var(--sl-nav-pad-x);
   /* Sets the site bar apart from the docs rows below it */
   border-bottom: 1px solid var(--os-border);
+  /* Keep the full bar height (as on the landing page, www/style.css) so the
+     wordmark doesn't shift between pages; the tabs row absorbs Starlight's
+     header border. */
+  flex-shrink: 0;
 }
 [data-has-sidebar] .os-header__row {
   padding-inline-end: calc(var(--sl-nav-pad-x) + var(--sl-menu-button-size) + 0.5rem);
