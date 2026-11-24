@@ -456,11 +456,8 @@ starlight-toc a[aria-current="true"] {
 /* Wider than the page (sidebar, content, rail): center it, header included,
    with equal margins that grow with the window. Starlight pins the sidebar to
    the window's left edge, so it, the content's start (which the rail follows)
-   and the header rows all shift by the same gutter. */
-:root {
-  --os-page-w: 87.5rem;
-  --os-gutter: max(0px, (100vw - var(--os-page-w)) / 2);
-}
+   and the header rows all shift by the same gutter (--os-gutter, from
+   theme/site-bar.css, which centers the site bar itself). */
 @media (min-width: 87.5rem) {
   /* Outranks Starlight's [data-astro-cid-…][data-has-sidebar] rule in
      Page.astro, which loads later. */
@@ -470,7 +467,6 @@ starlight-toc a[aria-current="true"] {
   .sidebar-pane {
     inset-inline-start: var(--os-gutter);
   }
-  .os-header .site-bar,
   .os-tabs,
   .os-subtabs {
     padding-inline: calc(var(--sl-nav-pad-x) + var(--os-gutter));
@@ -900,6 +896,15 @@ a.os-card:hover .os-card__arrow {
 .sl-markdown-content .frame.is-terminal:not(.has-title) pre {
   border-top: 1px solid var(--os-border);
   border-radius: var(--os-radius);
+}
+/* Expressive Code moves the copy button down past the terminal title bar
+   (--button-spacing on .frame.is-terminal). Without the bar, use its spacing
+   for plain code blocks instead. */
+.sl-markdown-content .frame.is-terminal:not(.has-title) {
+  --button-spacing: 0.4rem;
+}
+.sl-markdown-content .os-terminal .frame.is-terminal {
+  --button-spacing: calc(1.9rem + var(--ec-brdWd) + 2 * var(--ec-uiPadBlk));
 }
 .sl-markdown-content .os-terminal .frame.is-terminal .header {
   display: flex;
