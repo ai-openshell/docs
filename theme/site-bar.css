@@ -23,6 +23,18 @@
     padding-inline: 1.5rem;
   }
 }
+/* Wider than the page: the bar's contents stay within the page width, centered,
+   on the docs (whose sidebar, content and rail shift by the same gutter) and on
+   the website pages alike. */
+:root {
+  --os-page-w: 87.5rem;
+  --os-gutter: max(0px, (100vw - var(--os-page-w)) / 2);
+}
+@media (min-width: 87.5rem) {
+  .site-bar {
+    padding-inline: calc(1.5rem + var(--os-gutter));
+  }
+}
 @media print {
   .site-bar {
     display: none;
