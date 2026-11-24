@@ -1,12 +1,14 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: Apache-2.0 -->
-<!-- The landing page at /. Everything in website/ is served at the site root; scripts/website.mjs publishes it next to the docs build at /docs/. The website/*.md pages reuse this file as their shell: everything except the title, the description, and the main element. -->
+<!-- The landing page at /. Everything in website/ is served at the site root; scripts/website.mjs publishes it next to the docs build at /docs/. The website/*.md pages reuse this file as their shell: everything except the title, the description, the Markdown link, and the main element. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>OpenShell</title>
     <meta name="description" content="The safe, private runtime for autonomous AI agents." />
+    <!-- Agents that fetch the HTML find its Markdown version: /llms.txt here, <name>.md on website/*.md pages. -->
+    <link rel="alternate" type="text/markdown" href="/llms.txt" title="llms.txt" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
