@@ -45,6 +45,7 @@ export default defineConfig({
         Sidebar: './src/components/overrides/Sidebar.astro',
         PageTitle: './src/components/overrides/PageTitle.astro',
         Footer: './src/components/overrides/Footer.astro',
+        TableOfContents: './src/components/overrides/TableOfContents.astro',
       },
       expressiveCode: {
         themes: ['github-dark-default', 'github-light'],

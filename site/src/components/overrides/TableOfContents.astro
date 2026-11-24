@@ -1,0 +1,29 @@
+---
+// SPDX-License-Identifier: Apache-2.0
+// Starlight's table of contents plus a "Scroll to top" button under it, shown
+// once the page has scrolled past the first screen.
+import Default from '@astrojs/starlight/components/TableOfContents.astro';
+---
+
+<Default />
+{Astro.locals.starlightRoute.toc && (
+  <button type="button" class="os-to-top">
+    Scroll to top
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3m-4 4 4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+)}
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('.os-to-top');
+  if (button) {
+    const update = () => button.toggleAttribute('data-visible', window.scrollY > window.innerHeight / 2);
+    addEventListener('scroll', update, { passive: true });
+    update();
+    button.addEventListener('click', () => {
+      const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+      // Drop the heading anchor so a reload doesn't jump back down.
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    });
+  }
+</script>

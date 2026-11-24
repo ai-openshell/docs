@@ -394,6 +394,96 @@ starlight-toc a[aria-current="true"] {
   font-weight: 600;
 }
 
+/* Starlight shows the right rail from 72rem, where it squeezes the content
+   column below its width. Keep the "On this page" dropdown until the left
+   sidebar, the content and the rail all fit (17 + 50.5 + 17 = 84.5rem). These
+   rules undo Starlight's 72rem ones in TwoColumnContent, PageSidebar, and
+   props.css. */
+@media (min-width: 72rem) and (width < 84.5rem) {
+  :root[data-has-toc] {
+    --sl-mobile-toc-height: 3rem;
+  }
+  .right-sidebar-panel {
+    display: none;
+  }
+  .right-sidebar .lg\:sl-hidden {
+    display: block;
+  }
+  .right-sidebar-container {
+    width: auto;
+    margin: 0;
+  }
+  .right-sidebar {
+    position: static;
+    width: auto;
+    height: auto;
+    padding-top: 0;
+    border: 0;
+    overflow: visible;
+  }
+  [data-has-sidebar][data-has-toc] .main-pane {
+    --sl-content-margin-inline: auto;
+    width: 100%;
+  }
+}
+
+/* "Scroll to top" under the table of contents (overrides/TableOfContents.astro),
+   shown once the page has scrolled. */
+.os-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--os-muted);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.15s,
+    visibility 0.15s;
+}
+.os-to-top[data-visible] {
+  opacity: 1;
+  visibility: visible;
+}
+.os-to-top:hover {
+  color: var(--os-fg);
+}
+.os-to-top svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Sidebars: a thin scrollbar that shows only while the pointer is over them. */
+.sidebar-pane,
+.right-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.sidebar-pane:hover,
+.right-sidebar:hover {
+  scrollbar-color: var(--os-border) transparent;
+}
+/* Safari before scrollbar-color support; browsers that support it ignore these. */
+.sidebar-pane::-webkit-scrollbar,
+.right-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-pane::-webkit-scrollbar-thumb,
+.right-sidebar::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: transparent;
+}
+.sidebar-pane:hover::-webkit-scrollbar-thumb,
+.right-sidebar:hover::-webkit-scrollbar-thumb {
+  background: var(--os-border);
+}
+
 /* pagination */
 .pagination-links a {
   border-color: var(--os-border);
