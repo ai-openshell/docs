@@ -6,7 +6,7 @@ Builds the [OpenShell](https://github.com/ai-openshell/openshell) website and
 docs from the docs of several repositories. Each repository keeps its docs next
 to its code and ships them with its releases. This repository holds no docs
 content: it owns the build, the theme, the navigation, and the few pages outside
-the docs, such as the landing page.
+the docs, such as the landing page, in [`website/`](website/).
 
 | Docset    | Repository                                                          | Path        | Dev branch |
 | --------- | ------------------------------------------------------------------- | ----------- | ---------- |

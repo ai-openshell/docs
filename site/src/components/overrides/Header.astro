@@ -13,7 +13,11 @@ const base = import.meta.env.BASE_URL;
 // the website pages' index too.
 const bar = siteBar({
   current: base,
-  search: { bundlePath: `${base}pagefind/`, baseUrl: base, merge: process.env.WEBSITE ? '/pagefind-www/' : undefined },
+  search: {
+    bundlePath: `${base}pagefind/`,
+    baseUrl: base,
+    merge: process.env.WEBSITE ? '/pagefind-website/' : undefined,
+  },
 });
 
 const os = Astro.locals.osVersion;

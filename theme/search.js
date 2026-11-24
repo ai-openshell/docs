@@ -2,7 +2,7 @@
 // Search for the site bar (site-bar.mjs), on every page. The dialog's data
 // attributes say which Pagefind index to search (data-bundle, data-base-url)
 // and, on the full website, which index to merge (data-merge: the website
-// pages in /pagefind-www/). The Pagefind UI loads on first open.
+// pages in /pagefind-website/). The Pagefind UI loads on first open.
 const dialog = document.querySelector('.search-dialog');
 const container = dialog?.querySelector('#site-search');
 const kbd = document.querySelector('.search-button__kbd');
