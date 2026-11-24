@@ -3,8 +3,8 @@
 // Assemble the website: the files in website/ at / and the docs build at /docs/.
 // website/index.html is the landing page. Each other website/<name>.md is rendered
 // into the landing page's shell (header, footer, scripts) at /<name>/, with
-// its Markdown copy at /<name>.md, like the docs pages. /llms.txt lists the
-// website pages and the docs.
+// its Markdown copy at /<name>.md, like the docs pages. /llms.txt links the
+// docs index and lists the website pages.
 // The docs build must use BASE_PATH=/docs/ so its links resolve under /docs/.
 // Usage: node scripts/website.mjs site/dist build/website
 import fs from 'node:fs';
@@ -112,14 +112,11 @@ for (const file of pages) {
   listed.push(`- [${meta.title}](/${name}.md): ${meta.description}`);
 }
 
-// /llms.txt: the website pages, then the docs index (/docs/llms.txt) inline so
-// one fetch covers the whole site. The docs index's own heading and preamble
-// are replaced by this one's.
+// /llms.txt: a link to the docs index (/docs/llms.txt) and the website pages.
+// The docs index lists every docs page, so this one stays short as docsets grow.
 const description = shell.match(/<meta name="description" content="([^"]*)" \/>/)?.[1];
 if (!description) throw new Error('website/index.html has no description meta tag');
-const docsIndex = fs.readFileSync(path.join(docs, 'llms.txt'), 'utf8');
-const docsSections = docsIndex.slice(docsIndex.search(/^## /m));
-if (!docsSections.startsWith('## ')) throw new Error(`${docs}/llms.txt has no sections`);
+if (!fs.existsSync(path.join(docs, 'llms.txt'))) throw new Error(`${docs} has no llms.txt`);
 fs.writeFileSync(
   path.join(out, 'llms.txt'),
   [
@@ -127,13 +124,16 @@ fs.writeFileSync(
     '',
     `> ${description}`,
     '',
-    `Every page is also available as Markdown at its URL plus .md. The documentation sections list the latest release of each docset, with links to other versions; /${MOUNT}/llms.txt has the documentation alone.`,
+    'Every page is also available as Markdown at its URL plus .md.',
+    '',
+    '## Docs',
+    '',
+    `- [OpenShell documentation](/${MOUNT}/llms.txt): Index of every docs page, latest release of each docset first.`,
     '',
     '## Website',
     '',
     ...listed,
     '',
-    docsSections,
   ].join('\n'),
 );
 
