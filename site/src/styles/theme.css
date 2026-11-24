@@ -396,10 +396,10 @@ starlight-toc a[aria-current="true"] {
 
 /* Starlight shows the right rail from 72rem, where it squeezes the content
    column below its width. Keep the "On this page" dropdown until the left
-   sidebar, the content and the rail all fit (17 + 50.5 + 17 = 84.5rem). These
+   sidebar, the rail, and the full-width content column fit (from 87.5rem). These
    rules undo Starlight's 72rem ones in TwoColumnContent, PageSidebar, and
    props.css. */
-@media (min-width: 72rem) and (width < 84.5rem) {
+@media (min-width: 72rem) and (width < 87.5rem) {
   :root[data-has-toc] {
     --sl-mobile-toc-height: 3rem;
   }
@@ -422,8 +422,15 @@ starlight-toc a[aria-current="true"] {
     overflow: visible;
   }
   [data-has-sidebar][data-has-toc] .main-pane {
-    --sl-content-margin-inline: auto;
     width: 100%;
+  }
+}
+/* Content starts right after the left sidebar at every width, as it does below
+   72rem, so resizing past a breakpoint doesn't shift it sideways. Starlight
+   pushes it toward the right rail instead. */
+@media (min-width: 72rem) {
+  [data-has-sidebar][data-has-toc] .main-pane {
+    --sl-content-margin-inline: 0;
   }
 }
 
