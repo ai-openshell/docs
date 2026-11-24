@@ -15,7 +15,7 @@ description = "Fetch every source in sources.yml and assemble the pages"
 run = "node assembler/assemble.mjs --base /docs/"
 
 [tasks.build]
-description = "Assemble and build the site into site/dist"
+description = "Assemble and build the site into docs/dist"
 depends = ["assemble"]
 env = { BASE_PATH = "/docs/" }
 run = "npm run site"
@@ -50,4 +50,4 @@ run = "npm run format"
 
 [tasks.serve]
 description = "Serve the built site at http://127.0.0.1:4410/docs/"
-run = "node scripts/serve.mjs site/dist 4410 /docs/"
+run = "node scripts/serve.mjs docs/dist 4410 /docs/"

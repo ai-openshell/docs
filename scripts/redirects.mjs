@@ -12,11 +12,11 @@
 //                             (and Fern section URLs without an overview page)
 // Existing pages are never overwritten. A production host would use edge
 // rules instead.
-// Usage: node scripts/redirects.mjs site/dist
+// Usage: node scripts/redirects.mjs docs/dist
 import fs from 'node:fs';
 import path from 'node:path';
 
-const dist = path.resolve(process.argv[2] ?? 'site/dist');
+const dist = path.resolve(process.argv[2] ?? 'docs/dist');
 const { base, home, docsets } = JSON.parse(fs.readFileSync(path.join(dist, 'versions.json'), 'utf8'));
 const join = (...p) => p.filter(Boolean).join('/');
 const href = (slug) => base + (slug ? `${slug}/` : '');

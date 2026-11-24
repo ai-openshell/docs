@@ -20,7 +20,7 @@ mise run install
 | ------------------------ | ------------------------------------------------------------------ |
 | `mise run website`       | Build the docs and the website pages into `build/website`          |
 | `mise run serve-website` | Serve the website at <http://127.0.0.1:4410/>                      |
-| `mise run build`         | Fetch every source and build only the docs into `site/dist`        |
+| `mise run build`         | Fetch every source and build only the docs into `docs/dist`        |
 | `mise run serve`         | Serve the docs build at <http://127.0.0.1:4410/docs/>              |
 | `mise run assemble`      | Fetch and assemble the sources without building the site           |
 | `mise run test`          | Run the assembler's unit tests                                     |
@@ -49,12 +49,12 @@ BASE_PATH=/docs/ npm run site
 ```
 
 Pull request previews for source repositories are tracked in
-[#2](https://github.com/ai-openshell/docs/issues/2).
+[#2](https://github.com/ai-openshell/website/issues/2).
 
 ## Website pages
 
 [`website/`](website/) holds the website's own pages, the ones outside the docs;
-the docs come from the sources and are built in `site/`.
+the docs come from the sources and are built in `docs/`.
 [`scripts/website.mjs`](scripts/website.mjs) puts the files in `website/` at `/`
 and the docs build at `/docs/`, into `build/website/`. The landing page,
 [`website/index.html`](website/index.html), is hand-written HTML. Other pages,
@@ -71,7 +71,7 @@ inserts the icon `website/icons/<name>.svg`.
 Every page, docs included, renders the same site bar from
 [`theme/site-bar.mjs`](theme/site-bar.mjs): wordmark, site links, search,
 GitHub, and theme toggle. The docs header
-([`Header.astro`](site/src/components/overrides/Header.astro)) and
+([`Header.astro`](docs/src/components/overrides/Header.astro)) and
 `scripts/website.mjs` both call it, and both use the same styles
 (`theme/site-bar.css`) and scripts (`theme/search.js`,
 `theme/theme-toggle.js`), so change the bar only in `theme/`.

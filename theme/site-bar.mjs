@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // The site bar shared by every page: wordmark, site links, search, GitHub, and
 // the theme toggle, plus the search dialog. The docs header
-// (site/src/components/overrides/Header.astro) and the website pages
+// (docs/src/components/overrides/Header.astro) and the website pages
 // (scripts/website.mjs) both render it from here, with the same styles
 // (site-bar.css) and scripts (search.js, theme-toggle.js), so the bar can't
 // differ between them.

@@ -7,7 +7,7 @@
 Report vulnerabilities in the OpenShell website privately through
 [ai-openshell/openshell's private reporting
 form](https://github.com/ai-openshell/openshell/security/advisories/new) and name
-`ai-openshell/docs` as the affected component. Do not disclose
+`ai-openshell/website` as the affected component. Do not disclose
 vulnerabilities in public issues, discussions, or pull requests.
 
 The OpenShell security policy applies to this repository: the [report template,

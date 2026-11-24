@@ -13,7 +13,7 @@ contact_links:
     about: >
       Report problems with OpenShell itself in ai-openshell/openshell.
   - name: Security vulnerability?
-    url: https://github.com/ai-openshell/docs/blob/main/SECURITY.md
+    url: https://github.com/ai-openshell/website/blob/main/SECURITY.md
     about: >
       Do not report security vulnerabilities through GitHub issues. Follow
       SECURITY.md and use the private reporting form.

@@ -1037,7 +1037,7 @@ html:has(.os-subtabs) {
   background: color-mix(in srgb, var(--os-accent) 14%, transparent);
 }
 
-/* Mermaid diagrams, rendered at build time by pele (site/scripts/sync.mjs) */
+/* Mermaid diagrams, rendered at build time by pele (docs/scripts/sync.mjs) */
 .os-mermaid {
   display: flex;
   justify-content: center;

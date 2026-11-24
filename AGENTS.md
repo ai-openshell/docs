@@ -21,7 +21,7 @@ repositories, listed in `sources.yml`. It holds no page content. See
 
 ## Conventions
 
-- `build/`, `.cache/`, and the generated paths under `site/` (see `.gitignore`)
+- `build/`, `.cache/`, and the generated paths under `docs/` (see `.gitignore`)
   are build outputs. Never edit or commit them.
 - Every file needs `SPDX-License-Identifier: Apache-2.0` in a comment in its
   first 10 lines (front matter in `.mdx` and `.astro`), or a `<file>.license`

@@ -11,7 +11,7 @@ body:
 
         Search existing issues for possible duplicates before filing.
 
-        This repository owns the website build, theme, navigation, search, and the pages outside the docs. Wrong or missing docs content belongs in the repository that owns the page, such as [ai-openshell/openshell](https://github.com/ai-openshell/openshell/issues) for the core docs. Do not report security vulnerabilities here; follow [SECURITY.md](https://github.com/ai-openshell/docs/blob/main/SECURITY.md) instead.
+        This repository owns the website build, theme, navigation, search, and the pages outside the docs. Wrong or missing docs content belongs in the repository that owns the page, such as [ai-openshell/openshell](https://github.com/ai-openshell/openshell/issues) for the core docs. Do not report security vulnerabilities here; follow [SECURITY.md](https://github.com/ai-openshell/website/blob/main/SECURITY.md) instead.
 
   - type: input
     id: url

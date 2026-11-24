@@ -2,7 +2,7 @@
 
 // Serve a page's Markdown copy to clients that ask for Markdown with
 // `Accept: text/markdown`. Every page has one at its path plus .md (the site's
-// root page uses /index.md; see markdownHref in site/src/versioning.ts).
+// root page uses /index.md; see markdownHref in docs/src/versioning.ts).
 // Netlify runs it only for requests whose Accept header mentions
 // text/markdown, so browser traffic never invokes it (or costs anything);
 // netlify.toml adds `Vary: Accept` to the static responses. Paths without a

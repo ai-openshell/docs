@@ -8,8 +8,8 @@
 
 # OpenShell website
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/ai-openshell/docs/blob/main/LICENSE)
-[![Security policy](https://img.shields.io/badge/Security-Report%20a%20Vulnerability-red)](https://github.com/ai-openshell/docs/blob/main/SECURITY.md)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/ai-openshell/website/blob/main/LICENSE)
+[![Security policy](https://img.shields.io/badge/Security-Report%20a%20Vulnerability-red)](https://github.com/ai-openshell/website/blob/main/SECURITY.md)
 
 Builds the [OpenShell](https://github.com/ai-openshell/openshell) website and
 docs from the docs of several repositories. Each repository keeps its docs next

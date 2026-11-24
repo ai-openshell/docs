@@ -6,7 +6,7 @@
 // its Markdown copy at /<name>.md, like the docs pages. /llms.txt links the
 // docs index and lists the website pages.
 // The docs build must use BASE_PATH=/docs/ so its links resolve under /docs/.
-// Usage: node scripts/website.mjs site/dist build/website
+// Usage: node scripts/website.mjs docs/dist build/website
 import fs from 'node:fs';
 import path from 'node:path';
 import * as pagefind from 'pagefind';
@@ -19,7 +19,7 @@ import YAML from 'yaml';
 import { siteBar } from '../theme/site-bar.mjs';
 
 const MOUNT = 'docs';
-const [docs = 'site/dist', out = 'build/website'] = process.argv.slice(2).map((p) => path.resolve(p));
+const [docs = 'docs/dist', out = 'build/website'] = process.argv.slice(2).map((p) => path.resolve(p));
 const repo = path.resolve(import.meta.dirname, '..');
 const pagesDir = path.join(repo, 'website');
 
@@ -37,7 +37,7 @@ fs.cpSync(pagesDir, out, {
 for (const f of ['tokens.css', 'site-bar.css', 'search.js', 'theme-toggle.js'])
   fs.copyFileSync(path.join(repo, 'theme', f), path.join(out, f));
 for (const f of ['favicon.svg', 'apple-touch-icon.png', 'cncf'])
-  fs.cpSync(path.join(repo, 'site/static', f), path.join(out, f), { recursive: true });
+  fs.cpSync(path.join(repo, 'docs/static', f), path.join(out, f), { recursive: true });
 fs.cpSync(docs, path.join(out, MOUNT), { recursive: true });
 // Hosts serve /404.html for any missing path. The docs one links its assets
 // absolutely (/docs/_astro/...), so it works at the root too.
@@ -145,7 +145,7 @@ fs.writeFileSync(
 );
 
 // Search: index the Markdown pages into /pagefind-website/, which the docs search
-// merges with its own index (pagefind.mergeIndex in site/astro.config.mjs).
+// merges with its own index (pagefind.mergeIndex in docs/astro.config.mjs).
 const { index } = await pagefind.createIndex();
 for (const [url, content] of rendered) await index.addHTMLFile({ url, content });
 await index.writeFiles({ outputPath: path.join(out, 'pagefind-website') });

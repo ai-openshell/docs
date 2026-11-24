@@ -4,14 +4,14 @@
   "type": "module",
   "scripts": {
     "assemble": "node assembler/assemble.mjs",
-    "sync": "node site/scripts/sync.mjs",
+    "sync": "node docs/scripts/sync.mjs",
     "build": "npm run assemble && npm run site",
-    "site": "npm run sync && astro build --root site && node scripts/redirects.mjs site/dist",
-    "website": "node scripts/website.mjs site/dist build/website",
-    "dev": "npm run sync && astro dev --root site",
+    "site": "npm run sync && astro build --root docs && node scripts/redirects.mjs docs/dist",
+    "website": "node scripts/website.mjs docs/dist build/website",
+    "dev": "npm run sync && astro dev --root docs",
     "lint": "biome ci --error-on-warnings .",
     "format": "biome check --write .",
-    "typecheck": "npm run sync && astro check --root site",
+    "typecheck": "npm run sync && astro check --root docs",
     "test": "node --test 'test/*.test.mjs'"
   },
   "dependencies": {
