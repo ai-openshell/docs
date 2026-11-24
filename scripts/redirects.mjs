@@ -11,7 +11,7 @@
 //   /<prefix>/<old page>   -> /<prefix>/<new page>, from `redirects:` in docset.yml
 //                             (and Fern section URLs without an overview page)
 // Existing pages are never overwritten. A production host would use edge
-// rules instead (and could also negotiate Markdown).
+// rules instead.
 // Usage: node scripts/redirects.mjs site/dist
 import fs from 'node:fs';
 import path from 'node:path';
