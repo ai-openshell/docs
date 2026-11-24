@@ -2,55 +2,45 @@
 
 # OpenShell docs
 
-Builds the [OpenShell](https://github.com/ai-openshell/openshell) docs site from the
-docs of several repositories. Each repository keeps its docs next to its code
-and ships them with its releases. This repository holds no page content: it
-owns the build, the theme, and the navigation.
+Builds the [OpenShell](https://github.com/ai-openshell/openshell) website and
+docs from the docs of several repositories. Each repository keeps its docs next
+to its code and ships them with its releases. This repository holds no docs
+content: it owns the build, the theme, the navigation, and the few pages outside
+the docs, such as the landing page, in [`website/`](website/).
 
-| Docset    | Repository                                                          | Path        | Versions                          |
-| --------- | ------------------------------------------------------------------- | ----------- | --------------------------------- |
-| OpenShell | [ai-openshell/openshell](https://github.com/ai-openshell/openshell) | `docs/`     | dev (`main`), 0.1.9, 0.1.8, 0.1.7 |
-| Go SDK    | [ai-openshell/sdk-go](https://github.com/ai-openshell/sdk-go)       | `docs/src/` | dev (`main`), 0.1.8, 0.1.7        |
+| Docset    | Repository                                                          | Path        | Dev branch |
+| --------- | ------------------------------------------------------------------- | ----------- | ---------- |
+| OpenShell | [ai-openshell/openshell](https://github.com/ai-openshell/openshell) | `docs/`     | `main`     |
+| Go SDK    | [ai-openshell/sdk-go](https://github.com/ai-openshell/sdk-go)       | `docs/src/` | `main`     |
 
 ## How it works
 
 [`sources.yml`](sources.yml) lists each repository, where it's mounted, and
 which tags to publish. The build fetches only the docs directory at each tag or
-branch, reads it in its own format (Fern `index.yml`, mdBook `SUMMARY.md`, or
-`docset.yml`), checks every link, and builds the site with
+branch, checks every link, and builds the docs with
 [Starlight](https://starlight.astro.build/). The newest release of each
 repository is published without a version in the URL, such as
-`/about/overview/` or `/sdks/go/`, so links always show the current docs. Other
-versions have their own path, such as `/0.1.8/about/overview/` or
-`/sdks/go/dev/`.
+`/docs/about/overview/`; other versions have their own path, such as
+`/docs/0.1.8/about/overview/` or `/docs/sdks/go/dev/`.
 
-Every page also has a Markdown copy at its path plus `.md`, listed in
-`/llms.txt`. On Netlify, an [edge function](netlify/edge-functions/markdown.js)
-serves that copy at the page's own URL to clients that send
-`Accept: text/markdown`.
-
-Broken links in fetched versions are warnings, so one repository can't block
-the site. To check a change to a repository's docs, build with `--local` (see
-[CONTRIBUTING.md](CONTRIBUTING.md)), where broken links are errors. Pull request
-previews for source repositories are tracked in
-[#2](https://github.com/ai-openshell/docs/issues/2).
+The website serves the landing page and the community page at `/` and the docs
+at `/docs/`, all with one site bar and one search. Every page also has a
+Markdown copy for agents at its URL plus `.md`. The site is hosted on Netlify
+under the CNCF's account.
 
 To publish a new release, add its tag to `sources.yml`.
-
-The published website serves a small landing page from [`www/`](www/)
-at `/` and the docs at `/docs/`. [`scripts/website.mjs`](scripts/website.mjs)
-combines the two after the docs build.
 
 ## Run it locally
 
 ```shell
 mise install
 mise run install
-mise run build
-mise run serve
+mise run website
+mise run serve-website
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the build details, the other tasks,
+and how to change the site.
 
 ## License
 

@@ -4,7 +4,7 @@
 //   build/assembled/content -> site/src/content/docs (MDX pages get one import line for the components)
 //   build/assembled/{nav,pages}.json -> site/src/generated/ (read by src/versioning.ts)
 //   site/static + build/assembled/public -> site/public (assets, <slug>.md, llms.txt, versions.json)
-//   theme/tokens.css -> site/src/styles/tokens.css
+//   theme/tokens.css, theme/site-bar.css -> site/src/styles/
 // Per page it also sets:
 //   slug      explicit, so version segments like "0.1.8" keep their dots
 //   banner    on dev and older versions, linking to the same page in the latest release
@@ -99,6 +99,7 @@ fs.rmSync(pub, { recursive: true, force: true });
 fs.cpSync(path.join(site, 'static'), pub, { recursive: true, filter: (src) => !src.endsWith('.license') });
 fs.cpSync(path.join(assembled, 'public'), pub, { recursive: true });
 
-fs.copyFileSync(path.join(themeDir, 'tokens.css'), path.join(site, 'src/styles/tokens.css'));
+for (const f of ['tokens.css', 'site-bar.css'])
+  fs.copyFileSync(path.join(themeDir, f), path.join(site, 'src/styles', f));
 for (const f of failed) console.warn(`warning: diagram left as code: ${f}`);
 console.log(`synced ${pages.length} pages, ${diagrams} diagrams and ${names.length} components (base ${nav.base})`);

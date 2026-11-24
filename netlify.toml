@@ -12,6 +12,8 @@ publish = "build/website"
 
 [build.environment]
 BASE_PATH = "/docs/"
+# Docs search also covers the website pages (pagefind-website, see scripts/website.mjs).
+WEBSITE = "1"
 
 # A page's URL serves HTML or Markdown depending on Accept (see
 # netlify/edge-functions/markdown.js), so tell caches to key on it. The edge

@@ -9,3 +9,4 @@ site/src/content/docs/
 site/src/generated/
 site/public/
 site/src/styles/tokens.css
+site/src/styles/site-bar.css

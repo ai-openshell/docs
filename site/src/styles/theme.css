@@ -86,37 +86,23 @@ body {
   flex-direction: column;
   height: 100%;
 }
-.os-header__row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  height: var(--os-header-h);
-  padding-inline: var(--sl-nav-pad-x);
+/* The site bar itself (wordmark, links, search, GitHub, theme) is shared with
+   the website pages: theme/site-bar.css. Here it only sits in Starlight's
+   header, above the topic tabs. */
+.os-header .site-bar {
+  /* Keep the full bar height so the wordmark sits where it does on the website
+     pages; the tabs row absorbs Starlight's header border. */
+  flex-shrink: 0;
 }
-[data-has-sidebar] .os-header__row {
-  padding-inline-end: calc(var(--sl-nav-pad-x) + var(--sl-menu-button-size) + 0.5rem);
-}
-@media (min-width: 50em) {
-  [data-has-sidebar] .os-header__row {
-    padding-inline-end: var(--sl-nav-pad-x);
+/* Narrow screens: room for Starlight's menu button, which holds GitHub and the
+   theme select, so the bar's own are hidden */
+@media (width < 50em) {
+  [data-has-sidebar] .os-header .site-bar {
+    padding-inline-end: calc(var(--sl-nav-pad-x) + var(--sl-menu-button-size) + 0.5rem);
   }
-}
-
-.os-wordmark {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  color: var(--os-fg);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-}
-.os-wordmark__mark {
-  width: auto;
-  height: 1.625rem;
-  flex: none;
+  .os-header .site-bar__end {
+    display: none;
+  }
 }
 
 /* ---------- version picker (top of the sidebar) ---------- */
@@ -219,56 +205,6 @@ body {
 .os-version__hint {
   font-size: 0.75rem;
   color: var(--os-muted);
-}
-
-.os-header__search {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-}
-@media (min-width: 50em) {
-  .os-header__search {
-    justify-content: center;
-  }
-  .os-header__search button[data-open-modal] {
-    max-width: 24rem;
-    height: 2.25rem;
-    border-radius: var(--os-radius);
-    background: var(--os-surface);
-    border-color: var(--os-border);
-    color: var(--os-muted);
-  }
-  .os-header__search button[data-open-modal]:hover {
-    border-color: var(--sl-color-gray-4);
-    color: var(--os-fg);
-  }
-  .os-header__search button[data-open-modal] > kbd {
-    background: var(--os-bg);
-    border: 1px solid var(--os-border);
-  }
-  .os-header__search button[data-open-modal] > kbd kbd {
-    background: none;
-    border: 0;
-    padding: 0;
-  }
-}
-.os-header__end {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.os-header__social {
-  align-items: center;
-  gap: 0.75rem;
-}
-.os-header__social a {
-  color: var(--os-muted);
-}
-.os-header__social a:hover {
-  color: var(--os-fg);
-}
-.os-header__end starlight-theme-select select {
-  font-size: 0.8125rem;
 }
 
 .os-tabs {

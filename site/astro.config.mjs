@@ -4,6 +4,7 @@
 
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
+import siteNav from '../theme/nav.json' with { type: 'json' };
 
 // BASE_PATH is the path the site is served under (GitHub Pages: /<repo>/).
 export default defineConfig({
@@ -15,9 +16,16 @@ export default defineConfig({
       title: 'OpenShell',
       description: 'The safe, private runtime for autonomous AI agents.',
       favicon: '/favicon.svg',
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/ai-openshell/docs' }],
-      customCss: ['./src/styles/tokens.css', './src/styles/theme.css'],
+      social: [{ icon: 'github', label: 'GitHub', href: siteNav.github }],
+      customCss: ['./src/styles/tokens.css', './src/styles/site-bar.css', './src/styles/theme.css'],
       head: [
+        // Mark the stored theme choice before paint so the header's theme toggle
+        // (theme/site-bar.mjs) shows the right icon; Starlight sets data-theme.
+        {
+          tag: 'script',
+          content:
+            "try{const t=localStorage.getItem('starlight-theme');document.documentElement.dataset.themeChoice=t==='light'||t==='dark'?t:'auto'}catch{}",
+        },
         {
           tag: 'link',
           attrs: { rel: 'apple-touch-icon', href: `${process.env.BASE_PATH ?? '/'}apple-touch-icon.png` },
@@ -60,6 +68,9 @@ export default defineConfig({
       // Sidebar, pagination, topic tabs and the version picker all follow the
       // version context of the current page; see src/versioning.ts.
       routeMiddleware: './src/routeData.ts',
+      // Starlight builds the Pagefind index; the site bar's search
+      // (theme/search.js) shows it instead of Starlight's search box.
+      pagefind: true,
     }),
   ],
 });

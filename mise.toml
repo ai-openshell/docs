@@ -22,8 +22,10 @@ run = "npm run site"
 
 [tasks.website]
 description = "Build the site, then add the landing page at / with the docs at /docs/"
-depends = ["build"]
-run = "npm run website"
+depends = ["assemble"]
+# WEBSITE=1 makes the docs search include the website pages, as on Netlify.
+env = { BASE_PATH = "/docs/", WEBSITE = "1" }
+run = ["npm run site", "npm run website"]
 
 [tasks.serve-website]
 description = "Serve the website at http://127.0.0.1:4410/"

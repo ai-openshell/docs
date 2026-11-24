@@ -5,8 +5,13 @@ import Default from '@astrojs/starlight/components/PageTitle.astro';
 import PageActions from '../PageActions.astro';
 
 const { description } = Astro.locals.starlightRoute.entry.data;
+// Where the page sits, for search results: the docset in a topic with several
+// (Go SDK), else the topic (Core, SDKs).
+const ds = Astro.locals.osVersion?.docsets;
+const section = ds && ((ds.topic.landing && ds.items.find((d) => d.current)?.title) || ds.topic.label);
 ---
 
+{section && <span hidden data-pagefind-meta={`section:${section}`} />}
 <div class="os-title">
   <Default />
   <PageActions />
