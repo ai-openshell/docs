@@ -104,6 +104,13 @@ for (const file of pages) {
     `<meta name="description" content="${htmlEscape(meta.description)}" />`,
     'description meta tag',
   );
+  // Agents that fetch the HTML find the page's Markdown copy, as on the docs pages.
+  html = swap(
+    html,
+    /<link rel="alternate" type="text\/markdown" [^>]*\/>/,
+    `<link rel="alternate" type="text/markdown" href="/${name}.md" />`,
+    'Markdown alternate link',
+  );
   html = withNav(swap(html, /<main>[\s\S]*<\/main>/, main, '<main>'), `/${name}/`);
   fs.mkdirSync(path.join(out, name), { recursive: true });
   fs.writeFileSync(path.join(out, name, 'index.html'), html);
