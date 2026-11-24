@@ -79,7 +79,7 @@ latest release of each docset only), and `scripts/website.mjs` indexes the
 website pages into `/pagefind-www/`. When built with `WEBSITE=1`, as Netlify
 and `mise run website` do, search merges the two, with the website pages at
 half weight so they don't outrank the docs. Each page records its section
-(Core, Go SDK, Community) as Pagefind metadata, which the results show as a
+(such as Core or Community) as Pagefind metadata, which the results show as a
 label.
 
 ## Markdown for agents

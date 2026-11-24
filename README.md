@@ -11,7 +11,6 @@ the docs, such as the landing page.
 | Docset    | Repository                                                          | Path        | Dev branch |
 | --------- | ------------------------------------------------------------------- | ----------- | ---------- |
 | OpenShell | [ai-openshell/openshell](https://github.com/ai-openshell/openshell) | `docs/`     | `main`     |
-| Go SDK    | [ai-openshell/sdk-go](https://github.com/ai-openshell/sdk-go)       | `docs/src/` | `main`     |
 
 ## How it works
 
@@ -21,7 +20,7 @@ branch, checks every link, and builds the docs with
 [Starlight](https://starlight.astro.build/). The newest release of each
 repository is published without a version in the URL, such as
 `/docs/about/overview/`; other versions have their own path, such as
-`/docs/0.1.8/about/overview/` or `/docs/sdks/go/dev/`.
+`/docs/0.1.8/about/overview/` or `/docs/dev/about/overview/`.
 
 The website serves the landing page and the community page at `/` and the docs
 at `/docs/`, all with one site bar and one search. Every page also has a

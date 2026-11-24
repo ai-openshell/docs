@@ -33,7 +33,7 @@
 
   /* layout */
   --os-tabs-h: 2.75rem;
-  --sl-nav-height: calc(var(--os-header-h) + var(--os-tabs-h));
+  --sl-nav-height: var(--os-header-h);
   --sl-nav-pad-x: 1.25rem;
   --sl-sidebar-width: 17rem;
   --sl-content-width: var(--os-content-w);
@@ -207,6 +207,10 @@ body {
   color: var(--os-muted);
 }
 
+/* Topic tabs show only when there are several topics (Header.astro) */
+html:has(.os-tabs) {
+  --sl-nav-height: calc(var(--os-header-h) + var(--os-tabs-h));
+}
 .os-tabs {
   display: flex;
   gap: 1.5rem;

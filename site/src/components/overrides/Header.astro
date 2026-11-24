@@ -1,6 +1,7 @@
 ---
 // SPDX-License-Identifier: Apache-2.0
-// Header: the site bar, then topic tabs, then (in topics with an overview page)
+// Header: the site bar, then topic tabs (when there are several topics), then
+// (in topics with an overview page)
 // sub-tabs for the overview and each docset. The site bar (wordmark, site
 // links, search, GitHub, theme) is theme/site-bar.mjs, shared with the website
 // pages, so it is the same markup, styles, and scripts everywhere.
@@ -33,11 +34,13 @@ const subtabs = ds
 
 <div class="os-header">
   <Fragment set:html={bar} />
-  <nav class="os-tabs print:hidden" aria-label="Topics">
-    {topics.map((t) => (
-      <a href={t.href} class="os-tab" aria-current={t.isCurrent ? 'true' : undefined}>{t.label}</a>
-    ))}
-  </nav>
+  {topics.length > 1 && (
+    <nav class="os-tabs print:hidden" aria-label="Topics">
+      {topics.map((t) => (
+        <a href={t.href} class="os-tab" aria-current={t.isCurrent ? 'true' : undefined}>{t.label}</a>
+      ))}
+    </nav>
+  )}
   {ds?.topic.landing && (
     <div class="os-subtabs print:hidden">
       <nav class="os-subtabs__links" aria-label={ds.topic.label}>
