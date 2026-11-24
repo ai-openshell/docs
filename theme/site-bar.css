@@ -72,9 +72,14 @@
   text-decoration: none;
   white-space: nowrap;
 }
+/* Hover only changes the color; the current section is also underlined */
 .site-bar__link:hover,
 .site-bar__link[aria-current="page"] {
   color: var(--os-accent-text);
+}
+.site-bar__link[aria-current="page"] {
+  text-decoration: underline 2px var(--os-accent);
+  text-underline-offset: 0.45em;
 }
 @media (width < 50rem) {
   .site-bar {
