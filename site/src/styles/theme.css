@@ -399,6 +399,141 @@ starlight-toc a[aria-current="true"] {
   font-weight: 600;
 }
 
+/* Starlight shows the right rail from 72rem, where it squeezes the content
+   column below its width. Keep the "On this page" dropdown until the left
+   sidebar, the rail, and the full-width content column fit (from 87.5rem). These
+   rules undo Starlight's 72rem ones in TwoColumnContent, PageSidebar, and
+   props.css. */
+@media (min-width: 72rem) and (width < 87.5rem) {
+  :root[data-has-toc] {
+    --sl-mobile-toc-height: 3rem;
+  }
+  .right-sidebar-panel {
+    display: none;
+  }
+  .right-sidebar .lg\:sl-hidden {
+    display: block;
+  }
+  .right-sidebar-container {
+    width: auto;
+    margin: 0;
+  }
+  .right-sidebar {
+    position: static;
+    width: auto;
+    height: auto;
+    padding-top: 0;
+    border: 0;
+    overflow: visible;
+  }
+  [data-has-sidebar][data-has-toc] .main-pane {
+    width: 100%;
+  }
+}
+/* Content starts right after the left sidebar at every width, as it does below
+   72rem, so resizing past a breakpoint doesn't shift it sideways. Starlight
+   pushes it toward the right rail instead. */
+@media (min-width: 72rem) {
+  [data-has-sidebar][data-has-toc] .main-pane {
+    --sl-content-margin-inline: 0;
+  }
+}
+/* Once the rail shows, it follows the content column instead of sitting at
+   the window's right edge; wider windows leave the extra space after it. */
+@media (min-width: 87.5rem) {
+  [data-has-sidebar][data-has-toc] .main-pane {
+    width: calc(var(--sl-content-width) + 2 * var(--sl-content-pad-x));
+  }
+  .right-sidebar-container {
+    width: var(--sl-sidebar-width);
+    margin-inline-start: 0;
+  }
+  .right-sidebar {
+    width: var(--sl-sidebar-width);
+  }
+}
+
+/* Wider than the page (sidebar, content, rail): center it, header included,
+   with equal margins that grow with the window. Starlight pins the sidebar to
+   the window's left edge, so it, the content's start (which the rail follows)
+   and the header rows all shift by the same gutter. */
+:root {
+  --os-page-w: 87.5rem;
+  --os-gutter: max(0px, (100vw - var(--os-page-w)) / 2);
+}
+@media (min-width: 87.5rem) {
+  /* Outranks Starlight's [data-astro-cid-…][data-has-sidebar] rule in
+     Page.astro, which loads later. */
+  html:root[data-has-sidebar] {
+    --sl-content-inline-start: calc(var(--sl-sidebar-width) + var(--os-gutter));
+  }
+  .sidebar-pane {
+    inset-inline-start: var(--os-gutter);
+  }
+  .os-header .site-bar,
+  .os-tabs,
+  .os-subtabs {
+    padding-inline: calc(var(--sl-nav-pad-x) + var(--os-gutter));
+  }
+}
+
+/* "Scroll to top" under the table of contents (overrides/TableOfContents.astro),
+   shown once the page has scrolled. */
+.os-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--os-muted);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.15s,
+    visibility 0.15s;
+}
+.os-to-top[data-visible] {
+  opacity: 1;
+  visibility: visible;
+}
+.os-to-top:hover {
+  color: var(--os-fg);
+}
+.os-to-top svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Sidebars: a thin scrollbar that shows only while the pointer is over them. */
+.sidebar-pane,
+.right-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.sidebar-pane:hover,
+.right-sidebar:hover {
+  scrollbar-color: var(--os-border) transparent;
+}
+/* Safari before scrollbar-color support; browsers that support it ignore these. */
+.sidebar-pane::-webkit-scrollbar,
+.right-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-pane::-webkit-scrollbar-thumb,
+.right-sidebar::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: transparent;
+}
+.sidebar-pane:hover::-webkit-scrollbar-thumb,
+.right-sidebar:hover::-webkit-scrollbar-thumb {
+  background: var(--os-border);
+}
+
 /* pagination */
 .pagination-links a {
   border-color: var(--os-border);
