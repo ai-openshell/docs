@@ -901,6 +901,15 @@ a.os-card:hover .os-card__arrow {
   border-top: 1px solid var(--os-border);
   border-radius: var(--os-radius);
 }
+/* Expressive Code moves the copy button down past the terminal title bar
+   (--button-spacing on .frame.is-terminal). Without the bar, use its spacing
+   for plain code blocks instead. */
+.sl-markdown-content .frame.is-terminal:not(.has-title) {
+  --button-spacing: 0.4rem;
+}
+.sl-markdown-content .os-terminal .frame.is-terminal {
+  --button-spacing: calc(1.9rem + var(--ec-brdWd) + 2 * var(--ec-uiPadBlk));
+}
 .sl-markdown-content .os-terminal .frame.is-terminal .header {
   display: flex;
 }
