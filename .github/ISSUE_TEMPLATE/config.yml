@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+
+blank_issues_enabled: false
+contact_links:
+  - name: Wrong or missing docs content?
+    url: https://github.com/ai-openshell/openshell/issues/new/choose
+    about: >
+      This repository builds the website; the docs content lives in each
+      source repository. Report content problems in the repository that owns
+      the page, such as ai-openshell/openshell for the core docs.
+  - name: Gateway, CLI, or sandbox problem?
+    url: https://github.com/ai-openshell/openshell/issues/new/choose
+    about: >
+      Report problems with OpenShell itself in ai-openshell/openshell.
+  - name: Security vulnerability?
+    url: https://github.com/ai-openshell/docs/blob/main/SECURITY.md
+    about: >
+      Do not report security vulnerabilities through GitHub issues. Follow
+      SECURITY.md and use the private reporting form.

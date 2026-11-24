@@ -4,7 +4,7 @@
 
 ## Reporting a vulnerability
 
-Report vulnerabilities in the OpenShell docs site privately through
+Report vulnerabilities in the OpenShell website privately through
 [ai-openshell/openshell's private reporting
 form](https://github.com/ai-openshell/openshell/security/advisories/new) and name
 `ai-openshell/docs` as the affected component. Do not disclose

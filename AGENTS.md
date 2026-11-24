@@ -2,7 +2,7 @@
 
 # Agent Instructions
 
-This repository builds the OpenShell docs site from the docs of several
+This repository builds the OpenShell website and docs from the docs of several
 repositories, listed in `sources.yml`. It holds no page content. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for setup and tasks.
 

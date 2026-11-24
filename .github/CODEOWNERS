@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# OpenShell maintainers own the website.
+* @ai-openshell/maintainers
+
+# CI and the hosting configuration need an infra review.
+/.github/ @ai-openshell/infra
+/netlify.toml @ai-openshell/infra
+/netlify/ @ai-openshell/infra

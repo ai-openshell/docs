@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# Contributing to the OpenShell docs site
+# Contributing to the OpenShell website
 
 This repository holds the site build, theme, and navigation, and the pages
 outside the docs. Docs content lives in each source repository; change it
