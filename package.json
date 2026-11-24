@@ -15,8 +15,8 @@
     "test": "node --test 'test/*.test.mjs'"
   },
   "dependencies": {
-    "@astrojs/starlight": "0.42.10",
-    "astro": "7.4.11",
+    "@astrojs/starlight": "0.43.1",
+    "astro": "7.4.12",
     "github-slugger": "2.0.0",
     "pagefind": "1.6.0",
     "pele": "1.13.0",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
-    "@biomejs/biome": "2.6.6",
+    "@biomejs/biome": "2.6.8",
     "typescript": "6.0.3"
   }
 }
