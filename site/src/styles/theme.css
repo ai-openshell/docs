@@ -433,6 +433,44 @@ starlight-toc a[aria-current="true"] {
     --sl-content-margin-inline: 0;
   }
 }
+/* Once the rail shows, it follows the content column instead of sitting at
+   the window's right edge; wider windows leave the extra space after it. */
+@media (min-width: 87.5rem) {
+  [data-has-sidebar][data-has-toc] .main-pane {
+    width: calc(var(--sl-content-width) + 2 * var(--sl-content-pad-x));
+  }
+  .right-sidebar-container {
+    width: var(--sl-sidebar-width);
+    margin-inline-start: 0;
+  }
+  .right-sidebar {
+    width: var(--sl-sidebar-width);
+  }
+}
+
+/* Wider than the page (sidebar, content, rail): center it, header included,
+   with equal margins that grow with the window. Starlight pins the sidebar to
+   the window's left edge, so it, the content's start (which the rail follows)
+   and the header rows all shift by the same gutter. */
+:root {
+  --os-page-w: 87.5rem;
+  --os-gutter: max(0px, (100vw - var(--os-page-w)) / 2);
+}
+@media (min-width: 87.5rem) {
+  /* Outranks Starlight's [data-astro-cid-…][data-has-sidebar] rule in
+     Page.astro, which loads later. */
+  html:root[data-has-sidebar] {
+    --sl-content-inline-start: calc(var(--sl-sidebar-width) + var(--os-gutter));
+  }
+  .sidebar-pane {
+    inset-inline-start: var(--os-gutter);
+  }
+  .os-header .site-bar,
+  .os-tabs,
+  .os-subtabs {
+    padding-inline: calc(var(--sl-nav-pad-x) + var(--os-gutter));
+  }
+}
 
 /* "Scroll to top" under the table of contents (overrides/TableOfContents.astro),
    shown once the page has scrolled. */
