@@ -97,9 +97,12 @@ for (const [id, src] of Object.entries(manifest.sources)) {
       src,
       name: v.name ?? v.ref.replace(/^v/, ''),
       dev: false,
-      repo: v.repo ?? src.repo,
-      ref: v.ref,
-      subdir: v.path ?? src.path,
+      // A version can come from a directory in this repo (`local`) instead of
+      // a fetched ref, such as a placeholder for a docset with no docs yet.
+      repo: v.local ? manifest.site.repo : (v.repo ?? src.repo),
+      ref: v.local ? 'local' : v.ref,
+      subdir: v.local ? '' : (v.path ?? src.path),
+      local: v.local && path.join(root, v.local),
     });
   const own = wanted.filter((w) => w.id === id);
   (own.find((w) => !w.dev) ?? own[0]).latest = true;

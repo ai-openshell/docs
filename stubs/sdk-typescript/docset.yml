@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Placeholder until the TypeScript SDK publishes its own docs (see sources.yml).
+
+title: TypeScript SDK
+nav:
+  - page: index.mdx
