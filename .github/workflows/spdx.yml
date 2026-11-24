@@ -26,4 +26,4 @@ jobs:
           include: "*"
           # LICENSE is the license text; the CNCF, GitHub, and Slack logos are
           # third-party artwork.
-          exclude: "LICENSE site/static/cncf/* www/icons/*"
+          exclude: "LICENSE site/static/cncf/* website/icons/*"

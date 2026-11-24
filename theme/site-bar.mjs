@@ -21,7 +21,7 @@ const CLOSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M1
  * @param {string} [opts.current] href of the current site link (e.g. '/docs/'), marked as the current page
  * @param {{ bundlePath: string, baseUrl: string, merge?: string }} opts.search
  *   the Pagefind index to search, and optionally a second index to merge
- *   (the website pages' /pagefind-www/)
+ *   (the website pages' /pagefind-website/)
  */
 export function siteBar({ current, search }) {
   const links = nav.links

@@ -52,16 +52,18 @@ Pull request previews for source repositories are tracked in
 
 ## Website pages
 
-[`scripts/website.mjs`](scripts/website.mjs) puts the files in [`www/`](www/)
-at `/` and the docs build at `/docs/`. The landing page,
-[`www/index.html`](www/index.html), is hand-written HTML. Other pages, such as
-`/community/`, are Markdown files in `www/` with a `title` and `description` in
-their front matter; each `www/<name>.md` is rendered into the landing page's
-shell at `/<name>/`.
+[`website/`](website/) holds the website's own pages, the ones outside the docs;
+the docs come from the sources and are built in `site/`.
+[`scripts/website.mjs`](scripts/website.mjs) puts the files in `website/` at `/`
+and the docs build at `/docs/`, into `build/website/`. The landing page,
+[`website/index.html`](website/index.html), is hand-written HTML. Other pages,
+such as `/community/`, are Markdown files in `website/` with a `title` and
+`description` in their front matter; each `website/<name>.md` is rendered into
+the landing page's shell at `/<name>/`.
 
 To add a page, add a Markdown file and its link to
 [`theme/nav.json`](theme/nav.json). `:name:` in a page, such as `:github:`,
-inserts the icon `www/icons/<name>.svg`.
+inserts the icon `website/icons/<name>.svg`.
 
 ## Site bar and search
 
@@ -76,7 +78,7 @@ GitHub, and theme toggle. The docs header
 Search shows [Pagefind](https://pagefind.app/)'s UI in the site bar's dialog;
 Starlight's own search box isn't used. Starlight builds the docs index (the
 latest release of each docset only), and `scripts/website.mjs` indexes the
-website pages into `/pagefind-www/`. When built with `WEBSITE=1`, as Netlify
+website pages into `/pagefind-website/`. When built with `WEBSITE=1`, as Netlify
 and `mise run website` do, search merges the two, with the website pages at
 half weight so they don't outrank the docs. Each page records its section
 (such as Core or Community) as Pagefind metadata, which the results show as a
@@ -118,4 +120,4 @@ and without the website pages.
   and `.astro` files, put it in the front matter. A file that can't hold a
   comment, such as JSON or an image, gets a `<file>.license` file containing
   the line instead. Third-party artwork, such as the CNCF logos and
-  `www/icons/`, is excluded.
+  `website/icons/`, is excluded.
