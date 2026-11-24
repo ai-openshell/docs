@@ -44,6 +44,4 @@ sources:
     dev: { ref: main }
     archive: https://docs.nvidia.com/openshell/
     versions:
-      - { name: "0.1.9", ref: v0.1.9 }
-      - { name: "0.1.8", ref: v0.1.8 }
-      - { name: "0.1.7", ref: v0.1.7 }
+      - { name: "0.1.10", ref: v0.1.10 }
