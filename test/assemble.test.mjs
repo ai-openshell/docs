@@ -52,21 +52,14 @@ function sourcesYml() {
 }
 
 function assemble(name, ...extra) {
+  return assembleWith(sourcesYml(), name, ...extra);
+}
+
+function assembleWith(sources, name, ...extra) {
   const out = path.join(tmp, name);
   const r = spawnSync(
     process.execPath,
-    [
-      assembler,
-      '--base',
-      '/docs/',
-      '--sources',
-      sourcesYml(),
-      '--out',
-      out,
-      '--cache',
-      path.join(tmp, 'cache'),
-      ...extra,
-    ],
+    [assembler, '--base', '/docs/', '--sources', sources, '--out', out, '--cache', path.join(tmp, 'cache'), ...extra],
     { encoding: 'utf8', env: { ...process.env, GITHUB_ACTIONS: '' } },
   );
   const read = (f) => fs.readFileSync(path.join(out, f), 'utf8');
@@ -163,5 +156,29 @@ describe('build with a --local checkout', () => {
     const build = assemble('local-clean', '--local', `beta=${repo('beta')}`);
     assert.equal(build.status, 0, build.log);
     assert.equal(build.json('sources.lock.json')['beta@dev'].sha, 'working-tree');
+  });
+});
+
+describe('a version from a directory in this repo', () => {
+  let build;
+  before(() => {
+    const file = path.join(tmp, 'stub-sources.yml');
+    fs.writeFileSync(
+      file,
+      `site:\n  title: Test\n  repo: example/docs\ntopics:\n  - id: core\n    label: Core\n    sources: [alpha, stub]\nsources:\n  alpha:\n    mount: ""\n    repo: ${repo('alpha')}\n    path: docs\n    versions:\n      - { name: "1.0", ref: v1.0 }\n  stub:\n    mount: stub\n    versions:\n      - { name: preview, local: test/fixtures/stub }\n`,
+    );
+    build = assembleWith(file, 'stub');
+  });
+
+  test('builds without fetching and is recorded as this repo', () => {
+    assert.equal(build.status, 0, build.log);
+    const lock = build.json('sources.lock.json');
+    assert.equal(lock['stub@preview'].sha, 'working-tree');
+    assert.equal(lock['stub@preview'].repo, 'example/docs');
+    assert.equal(build.json('nav.json').docsets.stub.latest, 'preview');
+  });
+
+  test('is published at its mount and links to other docsets', () => {
+    assert.match(build.read('content/stub/index.mdx'), /\]\(\/docs\/guide\/\)/);
   });
 });

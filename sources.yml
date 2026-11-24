@@ -8,7 +8,9 @@
 # records the commit in build/sources.lock.json.
 #
 # Every source has its own versions, newest first. The first one is "latest".
-# `dev` (optional) is a branch built as an extra, unreleased version.
+# `dev` (optional) is a branch built as an extra, unreleased version. A version
+# with `local: <dir>` instead of a `ref` is built from that directory in this
+# repo.
 #
 # The newest release is published at /<mount>/<page>, with no version in the
 # URL; every other version at /<mount>/<version>/<page>. /<mount>/latest/<page>
@@ -31,6 +33,11 @@ topics:
   - id: core
     label: Core
     sources: [core]
+  - id: sdks
+    label: SDKs
+    description: Client libraries for the OpenShell gateway API.
+    intro: topics/sdks.mdx
+    sources: [sdk-go, sdk-python, sdk-typescript, sdk-rust]
 
 sources:
   core:
@@ -44,3 +51,39 @@ sources:
       - { name: "0.1.9", ref: v0.1.9 }
       - { name: "0.1.8", ref: v0.1.8 }
       - { name: "0.1.7", ref: v0.1.7 }
+
+  sdk-go:
+    title: Go SDK
+    description: Go client for services and command-line tools.
+    mount: sdks/go
+    repo: ai-openshell/sdk-go
+    path: docs/src
+    dev: { ref: main }
+    versions:
+      - { name: "0.1.9", ref: v0.1.9 }
+      - { name: "0.1.8", ref: v0.1.8 }
+      - { name: "0.1.7", ref: v0.1.7 }
+
+  # The other SDKs don't publish docs yet: each has a placeholder page from
+  # stubs/ in this repo (a version with `local:` instead of a ref) until its
+  # docs move out of the core docs.
+  sdk-python:
+    title: Python SDK
+    description: Python client for the OpenShell gateway API.
+    mount: sdks/python
+    versions:
+      - { name: preview, local: stubs/sdk-python }
+
+  sdk-typescript:
+    title: TypeScript SDK
+    description: TypeScript client for the OpenShell gateway API.
+    mount: sdks/typescript
+    versions:
+      - { name: preview, local: stubs/sdk-typescript }
+
+  sdk-rust:
+    title: Rust SDK
+    description: Rust client for the OpenShell gateway API.
+    mount: sdks/rust
+    versions:
+      - { name: preview, local: stubs/sdk-rust }

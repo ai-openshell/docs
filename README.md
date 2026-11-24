@@ -11,6 +11,7 @@ the docs, such as the landing page, in [`website/`](website/).
 | Docset    | Repository                                                          | Path        | Dev branch |
 | --------- | ------------------------------------------------------------------- | ----------- | ---------- |
 | OpenShell | [ai-openshell/openshell](https://github.com/ai-openshell/openshell) | `docs/`     | `main`     |
+| Go SDK    | [ai-openshell/sdk-go](https://github.com/ai-openshell/sdk-go)       | `docs/src/` | `main`     |
 
 ## How it works
 
@@ -26,6 +27,9 @@ The website serves the landing page and the community page at `/` and the docs
 at `/docs/`, all with one site bar and one search. Every page also has a
 Markdown copy for agents at its URL plus `.md`. The site is hosted on Netlify
 under the CNCF's account.
+
+The Python, TypeScript, and Rust SDKs have placeholder pages from
+[`stubs/`](stubs/) until their docs move out of the core docs.
 
 To publish a new release, add its tag to `sources.yml`.
 
