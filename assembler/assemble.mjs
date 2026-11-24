@@ -78,6 +78,8 @@ const allIds = Object.keys(manifest.sources);
 // latest = the newest release; a docset with only a dev version uses dev.
 const wanted = [];
 for (const [id, src] of Object.entries(manifest.sources)) {
+  if (src.archive !== undefined && !/^https:\/\/\S+$/.test(src.archive))
+    errors.push(`sources.${id}.archive: ${JSON.stringify(src.archive)} is not an https URL`);
   if (src.dev) {
     const local = locals[id];
     wanted.push({
@@ -360,6 +362,7 @@ for (const id of allIds) {
     mount: latest.mount,
     repo: rels[0].repo,
     path: manifest.sources[id].path,
+    archive: manifest.sources[id].archive,
     latest: latest.version,
     versions: rels.map(versionEntry),
   };
@@ -632,6 +635,7 @@ for (const t of manifest.topics) {
     const others = releasesOf[id].filter((r) => r !== latest);
     if (others.length)
       llms.push(`Other versions: ${others.map((r) => `[${r.version}](${llmsUrl(r.prefix)})`).join(', ')}`, '');
+    if (docsets[id].archive) llms.push(`Older versions: ${docsets[id].archive}`, '');
   }
 }
 writeFile('public/llms.txt', llms.join('\n'));

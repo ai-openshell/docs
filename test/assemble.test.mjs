@@ -41,12 +41,12 @@ function makeRepo(name) {
 }
 
 function sourcesYml() {
-  const source = (name, mount) =>
-    `  ${name}:\n    mount: "${mount}"\n    repo: ${repo(name)}\n    path: docs\n    dev: { ref: main }\n    versions:\n      - { name: "1.0", ref: v1.0 }\n`;
+  const source = (name, mount, extra = '') =>
+    `  ${name}:\n    mount: "${mount}"\n    repo: ${repo(name)}\n    path: docs\n    dev: { ref: main }\n${extra}    versions:\n      - { name: "1.0", ref: v1.0 }\n`;
   const file = path.join(tmp, 'sources.yml');
   fs.writeFileSync(
     file,
-    `site:\n  title: Test\ntopics:\n  - id: core\n    label: Core\n    sources: [alpha]\n  - id: libs\n    label: Libraries\n    description: Client libraries.\n    sources: [beta]\nsources:\n${source('alpha', '')}${source('beta', 'beta')}`,
+    `site:\n  title: Test\ntopics:\n  - id: core\n    label: Core\n    sources: [alpha]\n  - id: libs\n    label: Libraries\n    description: Client libraries.\n    sources: [beta]\nsources:\n${source('alpha', '', '    archive: https://old.example.com/alpha/\n')}${source('beta', 'beta')}`,
   );
   return file;
 }
@@ -142,6 +142,9 @@ describe('full build from fetched sources', () => {
     const llms = build.read('public/llms.txt');
     assert.match(llms, /### Alpha 1\.0/);
     assert.match(llms, /\[dev\]\(\/docs\/dev\/llms\.txt\)/);
+    assert.match(llms, /^Older versions: https:\/\/old\.example\.com\/alpha\/$/m);
+    assert.equal(build.json('nav.json').docsets.alpha.archive, 'https://old.example.com/alpha/');
+    assert.equal(build.json('nav.json').docsets.beta.archive, undefined);
   });
 
   test('writes the host alias table for /<mount>/latest/', () => {
