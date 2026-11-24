@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Feature Request
+description: Propose a website feature with a user story and design. Not a "please build this" request.
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Design-First Feature Proposals
+
+        Describe the problem the feature solves, who it helps, why the current gap matters, how it should look and behave, and the observable criteria for success. Leave implementation choices to the people building the feature.
+
+        This repository owns the website build, theme, navigation, search, and the pages outside the docs. A request for new or changed docs content starts in the repository that owns the page, such as [ai-openshell/openshell](https://github.com/ai-openshell/openshell/issues) for the core docs.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Summarize the capability missing from the website today. Describe its consequences and current workarounds in Impact / Why This Matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact / Why This Matters
+      description: |
+        Explain what readers or contributors must do today and why that is insufficient. Include concrete evidence where available, but do not prescribe the implementation.
+      placeholder: |
+        Without this feature, readers must...
+        This results in...
+        This matters because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: design
+    attributes:
+      label: Proposed Design
+      description: |
+        How should this look and behave for a reader or contributor? Describe the externally observable behavior, and attach a sketch, mockup, or link to a site that does it well where it helps.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List specific, observable outcomes that would make this feature complete without prescribing how implementers achieve them.
+      placeholder: |
+        - [ ] <observable outcome>
+        - [ ] <observable outcome>
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Explain what you tried with the current website and why the proposal serves your use case better.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I've reviewed existing issues and the README
+          required: true
+        - label: This is a design proposal, not a "please build this" request
+          required: true

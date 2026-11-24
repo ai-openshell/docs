@@ -1,6 +1,15 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# OpenShell docs
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ai-openshell/openshell/main/docs/brand/assets/openshell-banner-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ai-openshell/openshell/main/docs/brand/assets/openshell-banner-light.png">
+  <img alt="OpenShell" src="https://raw.githubusercontent.com/ai-openshell/openshell/main/docs/brand/assets/openshell-banner-light.png" width="430">
+</picture>
+
+# OpenShell website
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/ai-openshell/docs/blob/main/LICENSE)
+[![Security policy](https://img.shields.io/badge/Security-Report%20a%20Vulnerability-red)](https://github.com/ai-openshell/docs/blob/main/SECURITY.md)
 
 Builds the [OpenShell](https://github.com/ai-openshell/openshell) website and
 docs from the docs of several repositories. Each repository keeps its docs next
@@ -38,8 +47,15 @@ mise run website
 mise run serve-website
 ```
 
+## Contributing
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the build details, the other tasks,
-and how to change the site.
+and how to change the site. Docs content lives in each source repository;
+report and fix content problems there, such as in
+[ai-openshell/openshell](https://github.com/ai-openshell/openshell) for the
+core docs.
+
+Report vulnerabilities through the [security policy](SECURITY.md).
 
 ## License
 
