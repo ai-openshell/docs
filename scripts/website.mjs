@@ -3,7 +3,8 @@
 // Assemble the website: the files in website/ at / and the docs build at /docs/.
 // website/index.html is the landing page. Each other website/<name>.md is rendered
 // into the landing page's shell (header, footer, scripts) at /<name>/, with
-// its Markdown copy at /<name>.md, like the docs pages.
+// its Markdown copy at /<name>.md, like the docs pages. /llms.txt lists the
+// website pages and the docs.
 // The docs build must use BASE_PATH=/docs/ so its links resolve under /docs/.
 // Usage: node scripts/website.mjs site/dist build/website
 import fs from 'node:fs';
@@ -82,6 +83,7 @@ const icon = (name) => {
 };
 const pages = fs.readdirSync(pagesDir).filter((f) => f.endsWith('.md'));
 const rendered = [];
+const listed = [];
 for (const file of pages) {
   const name = path.basename(file, '.md');
   const src = fs.readFileSync(path.join(pagesDir, file), 'utf8');
@@ -107,7 +109,33 @@ for (const file of pages) {
   fs.writeFileSync(path.join(out, name, 'index.html'), html);
   rendered.push([`/${name}/`, html]);
   fs.writeFileSync(path.join(out, `${name}.md`), `# ${meta.title}\n\n${body.replace(/:[a-z][a-z0-9-]*: /g, '')}\n`);
+  listed.push(`- [${meta.title}](/${name}.md): ${meta.description}`);
 }
+
+// /llms.txt: the website pages, then the docs index (/docs/llms.txt) inline so
+// one fetch covers the whole site. The docs index's own heading and preamble
+// are replaced by this one's.
+const description = shell.match(/<meta name="description" content="([^"]*)" \/>/)?.[1];
+if (!description) throw new Error('website/index.html has no description meta tag');
+const docsIndex = fs.readFileSync(path.join(docs, 'llms.txt'), 'utf8');
+const docsSections = docsIndex.slice(docsIndex.search(/^## /m));
+if (!docsSections.startsWith('## ')) throw new Error(`${docs}/llms.txt has no sections`);
+fs.writeFileSync(
+  path.join(out, 'llms.txt'),
+  [
+    '# OpenShell',
+    '',
+    `> ${description}`,
+    '',
+    `Every page is also available as Markdown at its URL plus .md. The documentation sections list the latest release of each docset, with links to other versions; /${MOUNT}/llms.txt has the documentation alone.`,
+    '',
+    '## Website',
+    '',
+    ...listed,
+    '',
+    docsSections,
+  ].join('\n'),
+);
 
 // Search: index the Markdown pages into /pagefind-website/, which the docs search
 // merges with its own index (pagefind.mergeIndex in site/astro.config.mjs).

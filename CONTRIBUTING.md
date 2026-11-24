@@ -88,7 +88,8 @@ label.
 
 Every page has a Markdown copy at its URL plus `.md`, such as
 `/docs/about/overview.md` or `/community.md`. The docs list theirs in
-`/docs/llms.txt`, and each docs page links to its copy in the page actions menu
+`/docs/llms.txt`; `/llms.txt` lists the website pages followed by the docs.
+Each docs page links to its copy in the page actions menu
 (Copy page, View as Markdown, Open in Claude or ChatGPT). On Netlify, an
 [edge function](netlify/edge-functions/markdown.js) serves the copy at the
 page's own URL to clients that send `Accept: text/markdown`;
