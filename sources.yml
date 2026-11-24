@@ -9,6 +9,8 @@
 #
 # Every source has its own versions, newest first. The first one is "latest".
 # `dev` (optional) is a branch built as an extra, unreleased version.
+# `archive` (optional) is a URL where versions this site no longer publishes
+# are still hosted. The version picker and llms.txt link to it.
 #
 # The newest release is published at /<mount>/<page>, with no version in the
 # URL; every other version at /<mount>/<version>/<page>. /<mount>/latest/<page>
@@ -40,6 +42,7 @@ sources:
     repo: ai-openshell/openshell
     path: docs
     dev: { ref: main }
+    archive: https://docs.nvidia.com/openshell/
     versions:
       - { name: "0.1.9", ref: v0.1.9 }
       - { name: "0.1.8", ref: v0.1.8 }

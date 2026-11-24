@@ -21,7 +21,15 @@ type Version = {
   latest?: boolean;
   dev?: boolean;
 };
-type Docset = { title: string; description?: string; mount: string; latest: string; versions: Version[] };
+type Docset = {
+  title: string;
+  description?: string;
+  mount: string;
+  latest: string;
+  versions: Version[];
+  /** Where versions this site no longer publishes are hosted (sources.yml `archive`). */
+  archive?: string;
+};
 export type Page = {
   slug: string;
   title: string;
@@ -145,6 +153,7 @@ export function pickerFor(page: Page) {
       href: href(v.pages.includes(page.key) ? [v.prefix, page.key].filter(Boolean).join('/') : v.first),
       samePage: v.pages.includes(page.key),
     })),
+    archive: d.archive ? { href: d.archive, host: new URL(d.archive).host } : undefined,
   };
 }
 

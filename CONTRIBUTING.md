@@ -32,7 +32,8 @@ mise run install
 
 [`sources.yml`](sources.yml) lists each source repository, where it's mounted,
 and which tags to publish; `dev` is a branch built as an extra, unreleased
-version. The assembler ([`assembler/`](assembler/)) fetches only the docs
+version, and `archive` is a URL where versions no longer published here are
+still hosted, which the version picker and `llms.txt` link to. The assembler ([`assembler/`](assembler/)) fetches only the docs
 directory at each ref, reads it in its own format (Fern `index.yml`, mdBook
 `SUMMARY.md`, or `docset.yml`), and writes the Starlight content, navigation,
 and Markdown copies. The commits it used are recorded in

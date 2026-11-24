@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Version picker for the docset the current page belongs to. Each docset has
 // its own versions, so a driver page lists driver versions. Sits at the top
-// of the sidebar.
+// of the sidebar. A docset with an `archive` URL in sources.yml ends the list
+// with a link to the versions hosted there.
 const picker = Astro.locals.osVersion?.picker;
 const isLatest = picker?.options.some((o) => o.current && o.latest);
 ---
@@ -27,6 +28,14 @@ const isLatest = picker?.options.some((o) => o.current && o.latest);
           </a>
         </li>
       ))}
+      {picker.archive && (
+        <li class="os-version__archive">
+          <a href={picker.archive.href} target="_blank" rel="noopener">
+            <span class="os-version__name">Older versions ↗</span>
+            <span class="os-version__hint">On {picker.archive.host}</span>
+          </a>
+        </li>
+      )}
     </ul>
   </details>
   </div>
