@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
 // Copy the assembled docs into the Starlight project.
-//   build/assembled/content -> site/src/content/docs (MDX pages get one import line for the components)
-//   build/assembled/{nav,pages}.json -> site/src/generated/ (read by src/versioning.ts)
-//   site/static + build/assembled/public -> site/public (assets, <slug>.md, llms.txt, versions.json)
-//   theme/tokens.css, theme/site-bar.css -> site/src/styles/
+//   build/assembled/content -> docs/src/content/docs (MDX pages get one import line for the components)
+//   build/assembled/{nav,pages}.json -> docs/src/generated/ (read by src/versioning.ts)
+//   docs/static + build/assembled/public -> docs/public (assets, <slug>.md, llms.txt, versions.json)
+//   theme/tokens.css, theme/site-bar.css -> docs/src/styles/
 // Per page it also sets:
 //   slug      explicit, so version segments like "0.1.8" keep their dots
 //   banner    on dev and older versions, linking to the same page in the latest release

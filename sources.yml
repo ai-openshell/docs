@@ -26,8 +26,8 @@
 # source.
 site:
   title: OpenShell
-  repo: ai-openshell/docs
-  url: https://ai-openshell.github.io/docs
+  repo: ai-openshell/website
+  url: https://ai-openshell.github.io/website
 
 topics:
   - id: core

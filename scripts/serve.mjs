@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'node:fs';
 // Serve a built site under its base path, like GitHub Pages does.
-// Usage: node scripts/serve.mjs site/dist 4410 /openshell-docs/
+// Usage: node scripts/serve.mjs docs/dist 4410 /docs/
 import http from 'node:http';
 import path from 'node:path';
 import { markdownPath, prefersMarkdown } from '../netlify/edge-functions/markdown.js';
 
-const [dir = 'site/dist', port = '4410', base = '/'] = process.argv.slice(2);
+const [dir = 'docs/dist', port = '4410', base = '/'] = process.argv.slice(2);
 const root = path.resolve(dir);
 const types = {
   '.html': 'text/html; charset=utf-8',

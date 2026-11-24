@@ -4,7 +4,7 @@
 
 Pages may use these components **without importing them**, in any source
 format (MDX in native and Fern repos). The site injects one import per page
-(`site/scripts/sync.mjs`); the assembler defines the Markdown fallback for each
+(`docs/scripts/sync.mjs`); the assembler defines the Markdown fallback for each
 (`assembler/assemble.mjs`). The names follow Fern's, so OpenShell's existing
 pages and release tags build unchanged.
 

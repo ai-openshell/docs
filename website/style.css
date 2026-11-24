@@ -2,7 +2,7 @@
 
 /* Styles for the pages in website/: the landing page and the Markdown pages.
    Colors and fonts come from theme/tokens.css (--os-*); text, card, and code
-   colors follow site/src/styles/theme.css so the pages match the docs. */
+   colors follow docs/src/styles/theme.css so the pages match the docs. */
 :root {
   --text: #d3d8cc;
   --strong: var(--os-fg);
@@ -107,7 +107,7 @@ h2 {
   padding-bottom: 3rem;
 }
 .page h1 {
-  /* Same as a docs page title (Starlight's --sl-text-h1 in site/src/styles/theme.css) */
+  /* Same as a docs page title (Starlight's --sl-text-h1 in docs/src/styles/theme.css) */
   margin: 0 0 1rem;
   font-size: 2rem;
   line-height: 1.2;
