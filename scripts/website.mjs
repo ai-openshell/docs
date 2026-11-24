@@ -67,6 +67,8 @@ const render = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(r
 // Icon shortcodes: :name: in a www/*.md page becomes www/icons/<name>.svg in
 // the HTML, and is dropped from the Markdown copy.
 const ICON = /:([a-z][a-z0-9-]*):/g;
+// Links to other sites, such as GitHub and Slack, open in a new tab.
+const EXTERNAL = /(<a href="https?:\/\/[^"]*")/g;
 const icon = (name) => {
   const f = path.join(www, 'icons', `${name}.svg`);
   if (!fs.existsSync(f)) throw new Error(`no icon www/icons/${name}.svg for :${name}:`);
@@ -85,7 +87,11 @@ for (const file of pages) {
   if (!meta?.title || !meta.description)
     throw new Error(`www/${file} needs a title and description in its front matter`);
   const body = src.slice(m[0].length).trim();
-  const main = `<main class="page" data-pagefind-body data-pagefind-meta="section:${htmlEscape(meta.title)}">\n<h1>${htmlEscape(meta.title)}</h1>\n${String(render.processSync(body)).replace(ICON, (_, n) => icon(n))}\n</main>`;
+  const main = `<main class="page" data-pagefind-body data-pagefind-meta="section:${htmlEscape(meta.title)}">\n<h1>${htmlEscape(meta.title)}</h1>\n${String(
+    render.processSync(body),
+  )
+    .replace(ICON, (_, n) => icon(n))
+    .replace(EXTERNAL, '$1 target="_blank" rel="noopener"')}\n</main>`;
   let html = swap(shell, /<title>[^<]*<\/title>/, `<title>${htmlEscape(meta.title)} · OpenShell</title>`, '<title>');
   html = swap(
     html,
