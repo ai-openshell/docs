@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Build the whole site from sources.yml and publish it to GitHub Pages.
+# Build the whole site from sources.yml and publish it to GitHub Pages, as
+# Netlify does but under /<repo>/: the website pages at /<repo>/ and the docs at
+# /<repo>/docs/.
 #
 # Runs on pull requests (build only), on changes to main, hourly (to pick up
 # new commits on each source's dev branch), and on demand. A source repo can
@@ -44,25 +46,28 @@ jobs:
       - name: Unit tests
         run: npm test
       - name: Assemble (fetches each source at its ref)
-        run: node assembler/assemble.mjs --base /${{ github.event.repository.name }}/
+        run: node assembler/assemble.mjs --base /${{ github.event.repository.name }}/docs/
       - name: Type-check
         run: npm run typecheck
-      - name: Build site
+      - name: Build docs
         run: npm run site
         env:
-          BASE_PATH: /${{ github.event.repository.name }}/
+          BASE_PATH: /${{ github.event.repository.name }}/docs/
           SITE_URL: https://${{ github.repository_owner }}.github.io
+          WEBSITE: "1"
+      - name: Build website
+        run: npm run website
       - name: Record the commits this build used
         run: |
           echo '### Sources' >> "$GITHUB_STEP_SUMMARY"
           echo '| Version | Ref | Commit | Format |' >> "$GITHUB_STEP_SUMMARY"
           echo '|---|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
           node -e 'for (const [k, v] of Object.entries(require("./build/assembled/sources.lock.json"))) console.log(`| ${k} | ${v.repo}@${v.ref} | ${v.sha.slice(0, 12)} | ${v.format} |`)' >> "$GITHUB_STEP_SUMMARY"
-          cp build/assembled/sources.lock.json docs/dist/
+          cp build/assembled/sources.lock.json build/website/
       - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request'
         with:
-          path: docs/dist
+          path: build/website
 
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

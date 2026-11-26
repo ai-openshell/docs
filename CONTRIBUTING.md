@@ -109,9 +109,13 @@ override the Netlify UI: Netlify runs `npm run build && npm run website` with
 `BASE_PATH=/docs/` and `WEBSITE=1`, and publishes `build/website`. Netlify also
 builds a deploy preview for each pull request.
 
-The [Site workflow](.github/workflows/site.yml) builds the docs on every pull
-request and publishes them to GitHub Pages from `main`, at `/<repository>/`
-and without the website pages.
+The [Site workflow](.github/workflows/site.yml) builds the same website on
+every pull request and publishes it to GitHub Pages from `main`, under
+`/<repository>/`: the website pages at `/<repository>/` and the docs at
+`/<repository>/docs/`. It builds the docs with `BASE_PATH=/<repository>/docs/`;
+`scripts/website.mjs` takes the site root from that base and prefixes the
+website pages' root-relative links with it, so write those links from `/`, such
+as `/docs/about/overview/`.
 
 ## Commits and pull requests
 

@@ -5,7 +5,9 @@
 // into the landing page's shell (header, footer, scripts) at /<name>/, with
 // its Markdown copy at /<name>.md, like the docs pages. /llms.txt links the
 // docs index and lists the website pages.
-// The docs build must use BASE_PATH=/docs/ so its links resolve under /docs/.
+// The docs build must use BASE_PATH=<root>docs/ so its links resolve under
+// <root>docs/. The root is / on Netlify and /<repo>/ on GitHub Pages; links in
+// the website pages are written from / and get the root prepended here.
 // Usage: node scripts/website.mjs docs/dist build/website
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,10 +26,13 @@ const repo = path.resolve(import.meta.dirname, '..');
 const pagesDir = path.join(repo, 'website');
 
 const { base } = JSON.parse(fs.readFileSync(path.join(docs, 'versions.json'), 'utf8'));
-if (base !== `/${MOUNT}/`) {
-  console.error(`${docs} was built with base ${base}; rebuild it with BASE_PATH=/${MOUNT}/`);
+if (!base.endsWith(`/${MOUNT}/`)) {
+  console.error(`${docs} was built with base ${base}; rebuild it with BASE_PATH=<root>${MOUNT}/, such as /${MOUNT}/`);
   process.exit(1);
 }
+const root = base.slice(0, -`${MOUNT}/`.length);
+// Root-relative links and assets in the website pages, served under root.
+const rooted = (html) => (root === '/' ? html : html.replace(/(\s(?:href|src)=")\/(?!\/)/g, `$1${root}`));
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.cpSync(pagesDir, out, {
@@ -40,7 +45,7 @@ for (const f of ['favicon.svg', 'apple-touch-icon.png', 'cncf'])
   fs.cpSync(path.join(repo, 'docs/static', f), path.join(out, f), { recursive: true });
 fs.cpSync(docs, path.join(out, MOUNT), { recursive: true });
 // Hosts serve /404.html for any missing path. The docs one links its assets
-// absolutely (/docs/_astro/...), so it works at the root too.
+// absolutely (<root>docs/_astro/...), so it works at the root too.
 fs.copyFileSync(path.join(docs, '404.html'), path.join(out, '404.html'));
 
 const htmlEscape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -56,15 +61,16 @@ const withNav = (html, current) =>
     html,
     /<!-- site-bar -->/,
     siteBar({
+      root,
       current,
-      search: { bundlePath: `/${MOUNT}/pagefind/`, baseUrl: `/${MOUNT}/`, merge: '/pagefind-website/' },
+      search: { bundlePath: `${base}pagefind/`, baseUrl: base, merge: `${root}pagefind-website/` },
     }),
     '<!-- site-bar --> placeholder',
   );
 
 // The landing page.
 const shell = fs.readFileSync(path.join(pagesDir, 'index.html'), 'utf8');
-fs.writeFileSync(path.join(out, 'index.html'), withNav(shell, '/'));
+fs.writeFileSync(path.join(out, 'index.html'), withNav(rooted(shell), root));
 
 // Markdown pages.
 const render = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify);
@@ -111,12 +117,13 @@ for (const file of pages) {
     `<link rel="alternate" type="text/markdown" href="/${name}.md" />`,
     'Markdown alternate link',
   );
-  html = withNav(swap(html, /<main>[\s\S]*<\/main>/, main, '<main>'), `/${name}/`);
+  html = withNav(rooted(swap(html, /<main>[\s\S]*<\/main>/, main, '<main>')), `${root}${name}/`);
   fs.mkdirSync(path.join(out, name), { recursive: true });
   fs.writeFileSync(path.join(out, name, 'index.html'), html);
+  // Pagefind URLs are relative to the index's baseUrl (the root, see search.js).
   rendered.push([`/${name}/`, html]);
   fs.writeFileSync(path.join(out, `${name}.md`), `# ${meta.title}\n\n${body.replace(/:[a-z][a-z0-9-]*: /g, '')}\n`);
-  listed.push(`- [${meta.title}](/${name}.md): ${meta.description}`);
+  listed.push(`- [${meta.title}](${root}${name}.md): ${meta.description}`);
 }
 
 // /llms.txt: a link to the docs index (/docs/llms.txt) and the website pages.
@@ -135,7 +142,7 @@ fs.writeFileSync(
     '',
     '## Docs',
     '',
-    `- [OpenShell documentation](/${MOUNT}/llms.txt): Index of every docs page, latest release of each docset first.`,
+    `- [OpenShell documentation](${base}llms.txt): Index of every docs page, latest release of each docset first.`,
     '',
     '## Website',
     '',
@@ -144,13 +151,13 @@ fs.writeFileSync(
   ].join('\n'),
 );
 
-// Search: index the Markdown pages into /pagefind-website/, which the docs search
-// merges with its own index (pagefind.mergeIndex in docs/astro.config.mjs).
+// Search: index the Markdown pages into <root>pagefind-website/, which the site
+// bar's search merges with the docs index (theme/search.js).
 const { index } = await pagefind.createIndex();
 for (const [url, content] of rendered) await index.addHTMLFile({ url, content });
 await index.writeFiles({ outputPath: path.join(out, 'pagefind-website') });
 await pagefind.close();
 
 console.log(
-  `website -> ${path.relative(process.cwd(), out)} (landing at /, ${pages.length} Markdown pages, docs at /${MOUNT}/)`,
+  `website -> ${path.relative(process.cwd(), out)} (landing at ${root}, ${pages.length} Markdown pages, docs at ${base})`,
 );
