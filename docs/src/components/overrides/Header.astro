@@ -10,14 +10,17 @@
 import { siteBar } from '../../../../theme/site-bar.mjs';
 
 const base = import.meta.env.BASE_URL;
+// The website serves the docs at <root>docs/ (scripts/website.mjs).
+const root = base.replace(/docs\/$/, '');
 // Search this build's Pagefind index; on the full website (WEBSITE=1), merge in
 // the website pages' index too.
 const bar = siteBar({
+  root,
   current: base,
   search: {
     bundlePath: `${base}pagefind/`,
     baseUrl: base,
-    merge: process.env.WEBSITE ? '/pagefind-website/' : undefined,
+    merge: process.env.WEBSITE ? `${root}pagefind-website/` : undefined,
   },
 });
 

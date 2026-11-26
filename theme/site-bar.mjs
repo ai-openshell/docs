@@ -18,28 +18,33 @@ const CLOSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M1
 
 /**
  * @param {object} opts
+ * @param {string} [opts.root] path the website is served under, '/' unless it
+ *   shares a host with other sites (GitHub Pages: '/<repo>/'); prefixes the
+ *   site links in nav.json, which are written from the website root
  * @param {string} [opts.current] href of the current site link (e.g. '/docs/'), marked as the current page
  * @param {{ bundlePath: string, baseUrl: string, merge?: string }} opts.search
  *   the Pagefind index to search, and optionally a second index to merge
- *   (the website pages' /pagefind-website/)
+ *   (the website pages' <root>pagefind-website/, with URLs under root)
  */
-export function siteBar({ current, search }) {
+export function siteBar({ root = '/', current, search }) {
+  const at = (href) => root + href.replace(/^\//, '');
   const links = nav.links
     .map(
       (l) =>
-        `<a href="${esc(l.href)}" class="site-bar__link"${l.href === current ? ' aria-current="page"' : ''}>${esc(l.label)}</a>`,
+        `<a href="${esc(at(l.href))}" class="site-bar__link"${at(l.href) === current ? ' aria-current="page"' : ''}>${esc(l.label)}</a>`,
     )
     .join('');
   const data = [
     ['bundle', search.bundlePath],
     ['base-url', search.baseUrl],
     ['merge', search.merge],
+    ['merge-base-url', search.merge && root],
   ]
     .filter(([, v]) => v)
     .map(([k, v]) => ` data-${k}="${esc(v)}"`)
     .join('');
   return `<div class="site-bar">
-<a href="/" class="site-bar__wordmark" translate="no">${WORDMARK}<span>OpenShell</span></a>
+<a href="${esc(root)}" class="site-bar__wordmark" translate="no">${WORDMARK}<span>OpenShell</span></a>
 <nav class="site-bar__links" aria-label="Site">${links}</nav>
 <button type="button" class="search-button" data-search-open>${SEARCH}<span class="search-button__label">Search</span><kbd class="search-button__kbd">Ctrl K</kbd></button>
 <div class="site-bar__end">

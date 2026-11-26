@@ -2,7 +2,7 @@
 // Search for the site bar (site-bar.mjs), on every page. The dialog's data
 // attributes say which Pagefind index to search (data-bundle, data-base-url)
 // and, on the full website, which index to merge (data-merge: the website
-// pages in /pagefind-website/). The Pagefind UI loads on first open.
+// pages in <root>pagefind-website/, and data-merge-base-url: their root). The Pagefind UI loads on first open.
 const dialog = document.querySelector('.search-dialog');
 const container = dialog?.querySelector('#site-search');
 const kbd = document.querySelector('.search-button__kbd');
@@ -14,7 +14,7 @@ const ranking = { pageLength: 0.1, termFrequency: 0.1, termSaturation: 2, termSi
 let ready;
 const load = () =>
   (ready ??= new Promise((resolve, reject) => {
-    const { bundle, baseUrl, merge } = dialog.dataset;
+    const { bundle, baseUrl, merge, mergeBaseUrl } = dialog.dataset;
     const css = document.createElement('link');
     css.rel = 'stylesheet';
     css.href = `${bundle}pagefind-ui.css`;
@@ -27,7 +27,7 @@ const load = () =>
         bundlePath: bundle,
         baseUrl,
         // Website pages count half, so a short page doesn't outrank the docs.
-        mergeIndex: merge ? [{ bundlePath: merge, baseUrl: '/', indexWeight: 0.5, ranking }] : [],
+        mergeIndex: merge ? [{ bundlePath: merge, baseUrl: mergeBaseUrl, indexWeight: 0.5, ranking }] : [],
         showSubResults: true,
         showImages: false,
         ranking,
